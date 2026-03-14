@@ -123,7 +123,7 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
               <div
                 className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all ${
                   s === step
-                    ? 'bg-orange-500 text-white'
+                    ? 'bg-red-500 text-white'
                     : s < step
                     ? 'bg-green-500 text-white'
                     : 'bg-gray-200 text-gray-600'
@@ -155,7 +155,7 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
                     value={formData.fullName}
                     onChange={(e) => updateField('fullName', e.target.value)}
                     placeholder="John Doe"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   />
                 </div>
 
@@ -166,7 +166,7 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
                     value={formData.username}
                     onChange={(e) => updateField('username', e.target.value.toLowerCase())}
                     placeholder="johndoe"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   />
                 </div>
 
@@ -177,7 +177,7 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
                     value={formData.email}
                     onChange={(e) => updateField('email', e.target.value)}
                     placeholder="john@example.com"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   />
                 </div>
 
@@ -188,7 +188,7 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
                     value={formData.phone}
                     onChange={(e) => updateField('phone', e.target.value)}
                     placeholder="(555) 123-4567"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   />
                 </div>
 
@@ -199,7 +199,7 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
                     value={formData.password}
                     onChange={(e) => updateField('password', e.target.value)}
                     placeholder="Min 6 characters"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   />
                 </div>
 
@@ -210,7 +210,7 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
                     value={formData.confirmPassword}
                     onChange={(e) => updateField('confirmPassword', e.target.value)}
                     placeholder="Confirm password"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   />
                   {formData.confirmPassword && formData.password !== formData.confirmPassword && (
                     <p className="text-xs text-red-500 mt-1">Passwords don't match</p>
@@ -230,7 +230,7 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
                     <img
                       src={profilePhoto}
                       alt="Profile"
-                      className="w-32 h-32 rounded-full object-cover border-4 border-orange-200"
+                      className="w-32 h-32 rounded-full object-cover border-4 border-red-200"
                     />
                     <button
                       onClick={() => setProfilePhoto('')}
@@ -240,7 +240,7 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
                     </button>
                   </div>
                 ) : (
-                  <label className="w-32 h-32 rounded-full border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition-colors">
+                  <label className="w-32 h-32 rounded-full border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-red-500 hover:bg-red-50 transition-colors">
                     <Upload size={32} className="text-gray-400 mb-2" />
                     <span className="text-xs text-gray-500">Upload Photo</span>
                     <input
@@ -260,7 +260,7 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
                   onChange={(e) => updateField('bio', e.target.value)}
                   rows={4}
                   placeholder="Tell us about yourself..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
                 />
               </div>
 
@@ -272,7 +272,7 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
                     value={formData.city}
                     onChange={(e) => updateField('city', e.target.value)}
                     placeholder="Your city"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   />
                 </div>
 
@@ -281,7 +281,7 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
                   <select
                     value={formData.state}
                     onChange={(e) => updateField('state', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   >
                     <option value="">Select State</option>
                     {US_STATES.map((state) => (
@@ -336,7 +336,7 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
                       </button>
                     </div>
                   ) : (
-                    <label className="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition-colors">
+                    <label className="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-red-500 hover:bg-red-50 transition-colors">
                       <Upload size={32} className="text-gray-400 mb-2" />
                       <span className="text-sm text-gray-500">Upload Front</span>
                       <input
@@ -366,7 +366,7 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
                       </button>
                     </div>
                   ) : (
-                    <label className="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition-colors">
+                    <label className="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-red-500 hover:bg-red-50 transition-colors">
                       <Upload size={32} className="text-gray-400 mb-2" />
                       <span className="text-sm text-gray-500">Upload Back</span>
                       <input
@@ -397,7 +397,7 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
             <button
               onClick={() => setStep((s) => s + 1)}
               disabled={(step === 1 && !canProceedToStep2()) || (step === 2 && !canProceedToStep3())}
-              className="flex items-center gap-2 px-6 py-2 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-6 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Next
               <ChevronRight size={20} />

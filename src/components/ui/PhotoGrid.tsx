@@ -62,7 +62,7 @@ export function PhotoGrid({ photos }: PhotoGridProps) {
               onClick={() => setCurrentIndex(index)}
               className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
                 index === currentIndex
-                  ? 'border-orange-500 scale-105'
+                  ? 'border-red-500 scale-105'
                   : 'border-gray-300 hover:border-gray-400'
               }`}
             >

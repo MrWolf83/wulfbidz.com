@@ -71,7 +71,7 @@ export default function App() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-12 h-12 border-4 border-red-500/30 border-t-red-500 rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-400">Loading WulfBidz...</p>
         </div>
       </div>
@@ -84,12 +84,17 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">W</span>
+              <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="text-white">
+                  <path d="M12 2L8 6L6 4L4 6L6 10L4 14L6 16L8 14L12 18L16 14L18 16L20 14L18 10L20 6L18 4L16 6L12 2Z" opacity="0.9"/>
+                  <path d="M12 4L9 7L8 6L7 7L8 9L7 12L8 13L9 12L12 15L15 12L16 13L17 12L16 9L17 7L16 6L15 7L12 4Z" opacity="0.6"/>
+                  <circle cx="9" cy="8" r="0.8" fill="white"/>
+                  <circle cx="15" cy="8" r="0.8" fill="white"/>
+                </svg>
               </div>
               <div>
                 <h1 className="text-xl font-bold text-white tracking-wider">WULFBIDZ</h1>
-                <p className="text-xs text-orange-500 -mt-1">wulfbidz.com</p>
+                <p className="text-xs text-red-500 -mt-1">wulfbidz.com</p>
               </div>
             </div>
 
@@ -116,7 +121,7 @@ export default function App() {
               {currentUser && (
                 <button
                   onClick={() => setShowSellModal(true)}
-                  className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
                 >
                   <Plus size={18} />
                   Sell Your Car
@@ -143,7 +148,7 @@ export default function App() {
               ) : (
                 <button
                   onClick={() => setShowProfileModal(true)}
-                  className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition-colors"
+                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors"
                 >
                   Sign Up
                 </button>
@@ -187,7 +192,7 @@ export default function App() {
                     setShowSellModal(true);
                     setMobileMenuOpen(false);
                   }}
-                  className="block w-full text-left bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                  className="block w-full text-left bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
                 >
                   <Plus size={18} />
                   Sell Your Car
@@ -198,14 +203,23 @@ export default function App() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {currentPage === 'home' && (
-          <>
-            <div className="text-center mb-16">
-              <h2 className="text-5xl md:text-6xl font-bold text-white mb-4 tracking-tight">
+      {/* Hero Section with Car Background */}
+      {currentPage === 'home' && (
+        <div className="relative h-[500px] overflow-hidden">
+          <div
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: 'url(https://images.pexels.com/photos/544542/pexels-photo-544542.jpeg?auto=compress&cs=tinysrgb&w=1600)',
+              opacity: 0.5
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-gray-900/90 via-gray-900/70 to-gray-900/90" />
+          <div className="relative z-10 h-full flex items-center justify-center">
+            <div className="text-center px-4">
+              <h2 className="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight">
                 Find Your Perfect Vehicle
               </h2>
-              <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
+              <p className="text-xl md:text-2xl text-gray-300 mb-10 max-w-3xl mx-auto">
                 Verified auctions with live bidding, transparent pricing, and trusted sellers.
               </p>
               <button
@@ -213,11 +227,19 @@ export default function App() {
                   setShowSearchModal(true);
                   setCurrentPage('results');
                 }}
-                className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all shadow-lg hover:shadow-xl"
+                className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-10 py-5 rounded-lg font-bold text-xl transition-all shadow-2xl hover:shadow-red-500/50 transform hover:scale-105"
               >
                 Start Shopping
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {currentPage === 'home' && (
+          <>
+
 
             <div>
               <h3 className="text-2xl font-bold text-white mb-8">Active Auctions</h3>

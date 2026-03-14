@@ -20,7 +20,7 @@ export function ExpandableDescription({ text, maxLength = 200 }: ExpandableDescr
       </p>
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="mt-2 flex items-center gap-1 text-orange-600 hover:text-orange-700 font-medium text-sm"
+        className="mt-2 flex items-center gap-1 text-red-600 hover:text-red-700 font-medium text-sm"
       >
         {isExpanded ? (
           <>

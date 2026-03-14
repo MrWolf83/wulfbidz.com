@@ -162,7 +162,7 @@ export function SellModal({ onClose }: SellModalProps) {
               <div
                 className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all ${
                   s === step
-                    ? 'bg-orange-500 text-white'
+                    ? 'bg-red-500 text-white'
                     : s < step
                     ? 'bg-green-500 text-white'
                     : 'bg-gray-200 text-gray-600'
@@ -192,7 +192,7 @@ export function SellModal({ onClose }: SellModalProps) {
                   <select
                     value={formData.year}
                     onChange={(e) => updateField('year', Number(e.target.value))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   >
                     {YEARS.map((year) => (
                       <option key={year} value={year}>
@@ -210,7 +210,7 @@ export function SellModal({ onClose }: SellModalProps) {
                       updateField('make', e.target.value);
                       updateField('model', '');
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   >
                     <option value="">Select Make</option>
                     {Object.keys(MAKES_MODELS).map((make) => (
@@ -227,7 +227,7 @@ export function SellModal({ onClose }: SellModalProps) {
                     value={formData.model}
                     onChange={(e) => updateField('model', e.target.value)}
                     disabled={!formData.make}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-100"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:bg-gray-100"
                   >
                     <option value="">Select Model</option>
                     {availableModels.map((model) => (
@@ -245,7 +245,7 @@ export function SellModal({ onClose }: SellModalProps) {
                     value={formData.trim}
                     onChange={(e) => updateField('trim', e.target.value)}
                     placeholder="e.g., Sport, Limited, LX"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   />
                 </div>
 
@@ -257,7 +257,7 @@ export function SellModal({ onClose }: SellModalProps) {
                     onChange={(e) => updateField('vin', e.target.value.toUpperCase())}
                     placeholder="17-character VIN"
                     maxLength={17}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent font-mono"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent font-mono"
                   />
                 </div>
 
@@ -268,7 +268,7 @@ export function SellModal({ onClose }: SellModalProps) {
                     value={formData.mileage}
                     onChange={(e) => updateField('mileage', e.target.value)}
                     placeholder="Enter mileage"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   />
                 </div>
 
@@ -277,7 +277,7 @@ export function SellModal({ onClose }: SellModalProps) {
                   <select
                     value={formData.transmission}
                     onChange={(e) => updateField('transmission', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   >
                     {TRANSMISSIONS.map((trans) => (
                       <option key={trans} value={trans}>
@@ -292,7 +292,7 @@ export function SellModal({ onClose }: SellModalProps) {
                   <select
                     value={formData.condition}
                     onChange={(e) => updateField('condition', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   >
                     {CONDITIONS.map((cond) => (
                       <option key={cond} value={cond}>
@@ -319,7 +319,7 @@ export function SellModal({ onClose }: SellModalProps) {
                   onChange={(e) => updateField('description', e.target.value)}
                   rows={6}
                   placeholder="Describe the vehicle's condition, features, history, and any issues..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
                 />
               </div>
 
@@ -344,7 +344,7 @@ export function SellModal({ onClose }: SellModalProps) {
                     </div>
                   ))}
                   {photos.length < 20 && (
-                    <label className="aspect-square border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition-colors">
+                    <label className="aspect-square border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-red-500 hover:bg-red-50 transition-colors">
                       <Upload size={24} className="text-gray-400 mb-1" />
                       <span className="text-xs text-gray-500">Upload</span>
                       <input
@@ -377,7 +377,7 @@ export function SellModal({ onClose }: SellModalProps) {
                       value={formData.startingBid}
                       onChange={(e) => updateField('startingBid', e.target.value)}
                       placeholder="0"
-                      className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     />
                   </div>
                 </div>
@@ -393,7 +393,7 @@ export function SellModal({ onClose }: SellModalProps) {
                       value={formData.reservePrice}
                       onChange={(e) => updateField('reservePrice', e.target.value)}
                       placeholder="Optional"
-                      className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     />
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
@@ -412,7 +412,7 @@ export function SellModal({ onClose }: SellModalProps) {
                       value={formData.buyNowPrice}
                       onChange={(e) => updateField('buyNowPrice', e.target.value)}
                       placeholder="Optional"
-                      className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     />
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
@@ -425,7 +425,7 @@ export function SellModal({ onClose }: SellModalProps) {
                   <select
                     value={formData.auctionDays}
                     onChange={(e) => updateField('auctionDays', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   >
                     <option value="3">3 Days</option>
                     <option value="5">5 Days</option>
@@ -442,7 +442,7 @@ export function SellModal({ onClose }: SellModalProps) {
                     value={formData.city}
                     onChange={(e) => updateField('city', e.target.value)}
                     placeholder="Vehicle location"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   />
                 </div>
 
@@ -451,7 +451,7 @@ export function SellModal({ onClose }: SellModalProps) {
                   <select
                     value={formData.state}
                     onChange={(e) => updateField('state', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   >
                     <option value="">Select State</option>
                     {US_STATES.map((state) => (
@@ -480,7 +480,7 @@ export function SellModal({ onClose }: SellModalProps) {
             <button
               onClick={() => setStep((s) => s + 1)}
               disabled={(step === 1 && !canProceedToStep2()) || (step === 2 && !canProceedToStep3())}
-              className="flex items-center gap-2 px-6 py-2 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-6 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Next
               <ChevronRight size={20} />

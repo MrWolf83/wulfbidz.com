@@ -8,7 +8,7 @@ interface CarCardProps {
 }
 
 export function CarCard({ listing, onClick }: CarCardProps) {
-  const mainPhoto = listing.photos?.[0]?.url || 'https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg?auto=compress&cs=tinysrgb&w=800';
+  const mainPhoto = listing.photos?.[0]?.url || '/1968-shelby-gt500-side.jpg';
 
   return (
     <div
@@ -53,7 +53,7 @@ export function CarCard({ listing, onClick }: CarCardProps) {
         <div className="flex items-center justify-between pt-4 border-t border-gray-200">
           <div>
             <p className="text-xs text-gray-500 uppercase tracking-wide">Current Bid</p>
-            <p className="text-2xl font-bold text-orange-600">
+            <p className="text-2xl font-bold text-red-600">
               ${listing.current_bid.toLocaleString()}
             </p>
           </div>

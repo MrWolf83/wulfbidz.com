@@ -189,7 +189,7 @@ export function ListingModal({ listing, onClose }: ListingModalProps) {
             </div>
 
             <div className="space-y-4">
-              <div className="bg-gradient-to-br from-orange-50 to-red-50 p-6 rounded-xl border-2 border-orange-200">
+              <div className="bg-gradient-to-br from-red-50 to-red-50 p-6 rounded-xl border-2 border-red-200">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold text-gray-900">Auction Status</h3>
                   <CountdownBadge endDate={listing.auction_end} />
@@ -198,7 +198,7 @@ export function ListingModal({ listing, onClose }: ListingModalProps) {
                 <div className="space-y-4">
                   <div>
                     <p className="text-sm text-gray-600 mb-1">Current Bid</p>
-                    <p className="text-4xl font-bold text-orange-600">
+                    <p className="text-4xl font-bold text-red-600">
                       ${listing.current_bid.toLocaleString()}
                     </p>
                   </div>
@@ -219,7 +219,7 @@ export function ListingModal({ listing, onClose }: ListingModalProps) {
                               type="number"
                               value={bidAmount}
                               onChange={(e) => setBidAmount(Number(e.target.value))}
-                              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                               step="100"
                               min={listing.current_bid + 100}
                             />
@@ -230,7 +230,7 @@ export function ListingModal({ listing, onClose }: ListingModalProps) {
                       <button
                         onClick={handlePlaceBid}
                         disabled={isPlacingBid}
-                        className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold py-3 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full bg-gradient-to-r from-red-500 to-red-500 text-white font-semibold py-3 rounded-lg hover:from-red-600 hover:to-red-600 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {isPlacingBid ? 'Placing Bid...' : 'Place Bid'}
                       </button>
@@ -249,7 +249,7 @@ export function ListingModal({ listing, onClose }: ListingModalProps) {
                   {!currentUser && (
                     <div className="text-center py-4">
                       <p className="text-gray-600 mb-3">Sign in to place a bid</p>
-                      <button className="text-orange-600 hover:text-orange-700 font-semibold">
+                      <button className="text-red-600 hover:text-red-700 font-semibold">
                         Sign In
                       </button>
                     </div>
@@ -275,7 +275,7 @@ export function ListingModal({ listing, onClose }: ListingModalProps) {
                           </span>
                         </div>
                         <div className="text-right">
-                          <p className="font-semibold text-orange-600">
+                          <p className="font-semibold text-red-600">
                             ${bid.amount.toLocaleString()}
                           </p>
                           <p className="text-xs text-gray-500">

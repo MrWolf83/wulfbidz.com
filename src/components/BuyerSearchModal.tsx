@@ -162,7 +162,7 @@ export function BuyerSearchModal({ onClose, onSelectListing }: BuyerSearchModalP
                   value={filters.keyword}
                   onChange={(e) => updateFilter('keyword', e.target.value)}
                   placeholder="Search vehicles..."
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 />
               </div>
             </div>
@@ -176,7 +176,7 @@ export function BuyerSearchModal({ onClose, onSelectListing }: BuyerSearchModalP
                     onClick={() => updateFilter('vehicleType', filters.vehicleType === type ? '' : type)}
                     className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
                       filters.vehicleType === type
-                        ? 'bg-orange-500 text-white'
+                        ? 'bg-red-500 text-white'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
@@ -192,7 +192,7 @@ export function BuyerSearchModal({ onClose, onSelectListing }: BuyerSearchModalP
                 <select
                   value={filters.make}
                   onChange={(e) => updateFilter('make', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
                 >
                   <option value="">Any Make</option>
                   {Object.keys(MAKES_MODELS).map((make) => (
@@ -209,7 +209,7 @@ export function BuyerSearchModal({ onClose, onSelectListing }: BuyerSearchModalP
                   value={filters.model}
                   onChange={(e) => updateFilter('model', e.target.value)}
                   disabled={!filters.make}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-100 text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:bg-gray-100 text-sm"
                 >
                   <option value="">Any Model</option>
                   {availableModels.map((model) => (
@@ -227,7 +227,7 @@ export function BuyerSearchModal({ onClose, onSelectListing }: BuyerSearchModalP
                 <select
                   value={filters.yearFrom}
                   onChange={(e) => updateFilter('yearFrom', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
                 >
                   <option value="">Any</option>
                   {YEARS.map((year) => (
@@ -243,7 +243,7 @@ export function BuyerSearchModal({ onClose, onSelectListing }: BuyerSearchModalP
                 <select
                   value={filters.yearTo}
                   onChange={(e) => updateFilter('yearTo', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
                 >
                   <option value="">Any</option>
                   {YEARS.map((year) => (
@@ -267,7 +267,7 @@ export function BuyerSearchModal({ onClose, onSelectListing }: BuyerSearchModalP
                     value={filters.budgetMin}
                     onChange={(e) => updateFilter('budgetMin', e.target.value)}
                     placeholder="0"
-                    className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                    className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
                   />
                 </div>
               </div>
@@ -283,7 +283,7 @@ export function BuyerSearchModal({ onClose, onSelectListing }: BuyerSearchModalP
                     value={filters.budgetMax}
                     onChange={(e) => updateFilter('budgetMax', e.target.value)}
                     placeholder="Any"
-                    className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                    className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
                   />
                 </div>
               </div>
@@ -296,7 +296,7 @@ export function BuyerSearchModal({ onClose, onSelectListing }: BuyerSearchModalP
                 value={filters.maxMileage}
                 onChange={(e) => updateFilter('maxMileage', e.target.value)}
                 placeholder="Any"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
               />
             </div>
 
@@ -305,7 +305,7 @@ export function BuyerSearchModal({ onClose, onSelectListing }: BuyerSearchModalP
               <select
                 value={filters.transmission}
                 onChange={(e) => updateFilter('transmission', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
               >
                 <option value="">Any</option>
                 {TRANSMISSIONS.map((trans) => (
@@ -321,7 +321,7 @@ export function BuyerSearchModal({ onClose, onSelectListing }: BuyerSearchModalP
               <select
                 value={filters.condition}
                 onChange={(e) => updateFilter('condition', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
               >
                 <option value="">Any</option>
                 {CONDITIONS.map((cond) => (
@@ -337,7 +337,7 @@ export function BuyerSearchModal({ onClose, onSelectListing }: BuyerSearchModalP
               <select
                 value={filters.state}
                 onChange={(e) => updateFilter('state', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
               >
                 <option value="">Any State</option>
                 {US_STATES.map((state) => (
@@ -351,7 +351,7 @@ export function BuyerSearchModal({ onClose, onSelectListing }: BuyerSearchModalP
             <button
               onClick={performSearch}
               disabled={isSearching}
-              className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold py-3 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-red-500 to-red-500 text-white font-semibold py-3 rounded-lg hover:from-red-600 hover:to-red-600 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSearching ? 'Searching...' : 'Search Vehicles'}
             </button>
@@ -369,7 +369,7 @@ export function BuyerSearchModal({ onClose, onSelectListing }: BuyerSearchModalP
                 value={alertName}
                 onChange={(e) => setAlertName(e.target.value)}
                 placeholder="Name this search (e.g., Red Mustangs)"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm mb-2"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm mb-2"
               />
               <button
                 onClick={handleSaveAlert}
