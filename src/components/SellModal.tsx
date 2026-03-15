@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { X, Upload, ChevronRight, ChevronLeft } from 'lucide-react';
 import { FieldLabel } from './ui/FieldLabel';
-import { YEARS, MAKES_MODELS, US_STATES, TRANSMISSIONS, CONDITIONS } from '../data/constants';
+import { YEARS, MAKES_MODELS, US_STATES, TRANSMISSIONS, CONDITIONS, SPECIALTY_TRIMS } from '../data/constants';
 import { supabase } from '../lib/supabase';
 
 interface SellModalProps {
@@ -239,14 +239,32 @@ export function SellModal({ onClose }: SellModalProps) {
                 </div>
 
                 <div>
-                  <FieldLabel>Trim</FieldLabel>
-                  <input
-                    type="text"
+                  <FieldLabel>Trim / Specialty Edition</FieldLabel>
+                  <select
                     value={formData.trim}
                     onChange={(e) => updateField('trim', e.target.value)}
-                    placeholder="e.g., Sport, Limited, LX"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  />
+                  >
+                    <option value="">Select Trim (Optional)</option>
+                    <optgroup label="Exotic & Performance Editions">
+                      {SPECIALTY_TRIMS.map((trim) => (
+                        <option key={trim} value={trim}>
+                          {trim}
+                        </option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="Custom">
+                      <option value="CUSTOM">Other (Enter Custom)</option>
+                    </optgroup>
+                  </select>
+                  {formData.trim === 'CUSTOM' && (
+                    <input
+                      type="text"
+                      placeholder="Enter custom trim"
+                      onChange={(e) => updateField('trim', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent mt-2"
+                    />
+                  )}
                 </div>
 
                 <div>
