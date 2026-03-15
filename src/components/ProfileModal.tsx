@@ -15,6 +15,7 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
+  const [returningUser, setReturningUser] = useState<{ email: string; username: string } | null>(null);
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -40,6 +41,12 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
       setMode('signin');
+    } else {
+      const savedEmail = localStorage.getItem('revbid_last_email');
+      const savedUsername = localStorage.getItem('revbid_last_username');
+      if (savedEmail && savedUsername) {
+        setReturningUser({ email: savedEmail, username: savedUsername });
+      }
     }
     setCheckingSession(false);
   };
@@ -76,8 +83,17 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
       return;
     }
 
+    localStorage.setItem('revbid_last_email', formData.email);
     setIsSubmitting(false);
     onClose();
+  };
+
+  const handleQuickSignIn = async () => {
+    if (!returningUser) return;
+
+    setFormData(prev => ({ ...prev, email: returningUser.email }));
+    setMode('signin');
+    setReturningUser(null);
   };
 
   const canProceedToStep2 = () => {
@@ -142,6 +158,9 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
       return;
     }
 
+    localStorage.setItem('revbid_last_email', formData.email);
+    localStorage.setItem('revbid_last_username', formData.username);
+
     alert('Account created successfully! Please check your email to verify your account.');
     setIsSubmitting(false);
     onClose();
@@ -154,6 +173,28 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
       <div className="bg-white rounded-2xl max-w-2xl w-full my-8 shadow-2xl">
+        {returningUser && mode === 'signup' && (
+          <div className="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-4 rounded-t-2xl">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white font-bold">
+                  {returningUser.username.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <p className="text-white font-semibold">Welcome back, {returningUser.username}!</p>
+                  <p className="text-white/90 text-sm">{returningUser.email}</p>
+                </div>
+              </div>
+              <button
+                onClick={handleQuickSignIn}
+                className="bg-white text-green-600 px-4 py-2 rounded-lg font-semibold hover:bg-green-50 transition-colors shadow-lg"
+              >
+                Sign In
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">
