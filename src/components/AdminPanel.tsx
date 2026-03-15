@@ -68,7 +68,7 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
           current_bid: mockCar.starting_bid,
           description: mockCar.description,
           photos: mockCar.photos,
-          ends_at: endsAt.toISOString(),
+          auction_end: endsAt.toISOString(),
         })
         .select()
         .single();
@@ -132,7 +132,7 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       const { data: listings } = await supabase
         .from('listings')
         .select('*')
-        .gt('ends_at', new Date().toISOString())
+        .gt('auction_end', new Date().toISOString())
         .order('created_at', { ascending: false })
         .limit(5);
 
