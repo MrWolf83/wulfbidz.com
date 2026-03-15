@@ -40,10 +40,16 @@ export function SellModal({ onClose }: SellModalProps) {
     const files = e.target.files;
     if (!files) return;
 
-    Array.from(files).forEach((file) => {
+    const remainingSlots = 6 - photos.length;
+    const filesToProcess = Array.from(files).slice(0, remainingSlots);
+
+    filesToProcess.forEach((file) => {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setPhotos((prev) => [...prev, reader.result as string]);
+        setPhotos((prev) => {
+          if (prev.length >= 6) return prev;
+          return [...prev, reader.result as string];
+        });
       };
       reader.readAsDataURL(file);
     });
@@ -65,7 +71,7 @@ export function SellModal({ onClose }: SellModalProps) {
   };
 
   const canProceedToStep3 = () => {
-    return formData.description.length >= 50;
+    return formData.description.length >= 50 && photos.length >= 1;
   };
 
   const canSubmit = () => {
@@ -342,8 +348,8 @@ export function SellModal({ onClose }: SellModalProps) {
               </div>
 
               <div>
-                <FieldLabel>Photos</FieldLabel>
-                <p className="text-xs text-gray-500 mb-3">Upload up to 20 photos</p>
+                <FieldLabel required>Photos</FieldLabel>
+                <p className="text-xs text-gray-500 mb-3">Upload 1-6 photos ({photos.length}/6)</p>
 
                 <div className="grid grid-cols-4 gap-3 mb-3">
                   {photos.map((photo, index) => (
@@ -361,7 +367,7 @@ export function SellModal({ onClose }: SellModalProps) {
                       </button>
                     </div>
                   ))}
-                  {photos.length < 20 && (
+                  {photos.length < 6 && (
                     <label className="aspect-square border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-red-500 hover:bg-red-50 transition-colors">
                       <Upload size={24} className="text-gray-400 mb-1" />
                       <span className="text-xs text-gray-500">Upload</span>
