@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, User, LogOut, Menu, X, Car, Shield, DollarSign, Clock, List } from 'lucide-react';
+import { Plus, Search, User, LogOut, Menu, X, Car, Shield, DollarSign, Clock, List, Settings } from 'lucide-react';
 import { supabase, type Listing } from './lib/supabase';
 import { CarCard } from './components/CarCard';
 import { ListingModal } from './components/ListingModal';
@@ -7,6 +7,7 @@ import { SellModal } from './components/SellModal';
 import { ProfileModal } from './components/ProfileModal';
 import { BuyerSearchModal } from './components/BuyerSearchModal';
 import MyListingsModal from './components/MyListingsModal';
+import AdminPanel from './components/AdminPanel';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<{ id: string; email: string } | null>(null);
@@ -17,6 +18,7 @@ export default function App() {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [showMyListingsModal, setShowMyListingsModal] = useState(false);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [currentPage, setCurrentPage] = useState<'home' | 'results'>('home');
   const [isLoading, setIsLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -154,6 +156,13 @@ export default function App() {
             <div className="flex items-center gap-4">
               {currentUser ? (
                 <>
+                  <button
+                    onClick={() => setShowAdminPanel(true)}
+                    className="p-2 hover:bg-gray-800 rounded-lg transition-colors text-amber-500 hover:text-amber-400"
+                    title="Admin Panel"
+                  >
+                    <Settings size={20} />
+                  </button>
                   <button
                     onClick={() => setShowProfileModal(true)}
                     className="p-2 hover:bg-gray-800 rounded-lg transition-colors text-gray-300 hover:text-white"
@@ -530,6 +539,13 @@ export default function App() {
         <MyListingsModal
           isOpen={showMyListingsModal}
           onClose={() => setShowMyListingsModal(false)}
+        />
+      )}
+
+      {showAdminPanel && (
+        <AdminPanel
+          isOpen={showAdminPanel}
+          onClose={() => setShowAdminPanel(false)}
         />
       )}
     </div>
