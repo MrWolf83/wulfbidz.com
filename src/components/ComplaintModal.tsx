@@ -42,6 +42,32 @@ export default function ComplaintModal({
         return;
       }
 
+      if (user.id === accusedId) {
+        setError('You cannot submit a complaint against yourself');
+        setIsSubmitting(false);
+        return;
+      }
+
+      const trimmedDescription = description.trim();
+      if (trimmedDescription.length < 50) {
+        setError('Description must be at least 50 characters');
+        setIsSubmitting(false);
+        return;
+      }
+
+      const { data: existingComplaint } = await supabase
+        .from('deal_complaints')
+        .select('id')
+        .eq('listing_id', listingId)
+        .eq('complainant_id', user.id)
+        .maybeSingle();
+
+      if (existingComplaint) {
+        setError('You have already submitted a complaint for this listing');
+        setIsSubmitting(false);
+        return;
+      }
+
       const { error: submitError } = await supabase
         .from('deal_complaints')
         .insert({
@@ -49,11 +75,17 @@ export default function ComplaintModal({
           complainant_id: user.id,
           accused_id: accusedId,
           complaint_type: complaintType,
-          description: description.trim(),
+          description: trimmedDescription,
         });
 
       if (submitError) {
-        setError(submitError.message);
+        if (submitError.message.includes('unique_complaint_per_listing_per_user')) {
+          setError('You have already submitted a complaint for this listing');
+        } else if (submitError.message.includes('check_complaint_rate_limit')) {
+          setError('You have submitted too many complaints recently. Please try again later.');
+        } else {
+          setError(submitError.message);
+        }
         setIsSubmitting(false);
         return;
       }

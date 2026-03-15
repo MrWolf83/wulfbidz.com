@@ -46,25 +46,27 @@ export default function MyListingsModal({ isOpen, onClose }: MyListingsModalProp
     if (listingsData) {
       const listingsWithBidders = await Promise.all(
         listingsData.map(async (listing) => {
-          const { data: highestBid } = await supabase
-            .from('bids')
-            .select('bidder_id, amount')
-            .eq('listing_id', listing.id)
-            .order('amount', { ascending: false })
-            .limit(1)
-            .maybeSingle();
-
-          if (highestBid) {
-            const { data: bidderProfile } = await supabase
-              .from('profiles')
-              .select('id, email, username')
-              .eq('id', highestBid.bidder_id)
+          if (listing.current_bid > listing.starting_bid) {
+            const { data: highestBid } = await supabase
+              .from('bids')
+              .select('bidder_id, amount')
+              .eq('listing_id', listing.id)
+              .order('amount', { ascending: false })
+              .limit(1)
               .maybeSingle();
 
-            return {
-              ...listing,
-              highest_bidder: bidderProfile || undefined,
-            };
+            if (highestBid) {
+              const { data: bidderProfile } = await supabase
+                .from('profiles')
+                .select('id, email, username')
+                .eq('id', highestBid.bidder_id)
+                .maybeSingle();
+
+              return {
+                ...listing,
+                highest_bidder: bidderProfile || undefined,
+              };
+            }
           }
 
           return listing;
