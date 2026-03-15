@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { X, Upload, ChevronRight, ChevronLeft, Shield } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, Upload, ChevronRight, ChevronLeft, Shield, Mail, Lock } from 'lucide-react';
 import { FieldLabel } from './ui/FieldLabel';
 import { US_STATES } from '../data/constants';
 import { supabase } from '../lib/supabase';
@@ -8,9 +8,13 @@ interface ProfileModalProps {
   onClose: () => void;
 }
 
+type AuthMode = 'signin' | 'signup';
+
 export function ProfileModal({ onClose }: ProfileModalProps) {
+  const [mode, setMode] = useState<AuthMode>('signin');
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -27,6 +31,18 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
   const [profilePhoto, setProfilePhoto] = useState<string>('');
   const [idFront, setIdFront] = useState<string>('');
   const [idBack, setIdBack] = useState<string>('');
+
+  useEffect(() => {
+    checkExistingSession();
+  }, []);
+
+  const checkExistingSession = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      setMode('signin');
+    }
+    setCheckingSession(false);
+  };
 
   const updateField = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -46,6 +62,24 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
     reader.readAsDataURL(file);
   };
 
+  const handleSignIn = async () => {
+    setIsSubmitting(true);
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: formData.email,
+      password: formData.password,
+    });
+
+    if (error) {
+      alert('Failed to sign in: ' + error.message);
+      setIsSubmitting(false);
+      return;
+    }
+
+    setIsSubmitting(false);
+    onClose();
+  };
+
   const canProceedToStep2 = () => {
     return (
       formData.fullName &&
@@ -61,12 +95,24 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
     return true;
   };
 
-  const handleSubmit = async (skipVerification: boolean = false) => {
+  const canCompleteSignup = () => {
+    return idFront && idBack;
+  };
+
+  const handleSignUp = async () => {
+    if (!idFront || !idBack) {
+      alert('Please upload both front and back of your license to complete registration.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: formData.email,
       password: formData.password,
+      options: {
+        emailRedirectTo: window.location.origin,
+      }
     });
 
     if (authError || !authData.user) {
@@ -85,8 +131,8 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
       city: formData.city,
       state: formData.state,
       photo_url: profilePhoto,
-      id_front_url: skipVerification ? null : idFront,
-      id_back_url: skipVerification ? null : idBack,
+      id_front_url: idFront,
+      id_back_url: idBack,
       id_verified: false,
     });
 
@@ -96,18 +142,24 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
       return;
     }
 
-    alert('Account created successfully!');
+    alert('Account created successfully! Please check your email to verify your account.');
     setIsSubmitting(false);
     onClose();
   };
+
+  if (checkingSession) {
+    return null;
+  }
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
       <div className="bg-white rounded-2xl max-w-2xl w-full my-8 shadow-2xl">
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Create Your Profile</h2>
-            <p className="text-sm text-gray-500 mt-1">Step {step} of 3</p>
+            <h2 className="text-2xl font-bold text-gray-900">
+              {mode === 'signin' ? 'Welcome Back' : 'Create Your Profile'}
+            </h2>
+            {mode === 'signup' && <p className="text-sm text-gray-500 mt-1">Step {step} of 3</p>}
           </div>
           <button
             onClick={onClose}
@@ -117,310 +169,394 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
           </button>
         </div>
 
-        <div className="flex mb-6 px-6 pt-6">
-          {[1, 2, 3].map((s) => (
-            <div key={s} className="flex-1 flex items-center">
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all ${
-                  s === step
-                    ? 'bg-red-500 text-white'
-                    : s < step
-                    ? 'bg-green-500 text-white'
-                    : 'bg-gray-200 text-gray-600'
-                }`}
-              >
-                {s}
-              </div>
-              {s < 3 && (
+        {mode === 'signup' && (
+          <div className="flex mb-6 px-6 pt-6">
+            {[1, 2, 3].map((s) => (
+              <div key={s} className="flex-1 flex items-center">
                 <div
-                  className={`flex-1 h-1 mx-2 transition-all ${
-                    s < step ? 'bg-green-500' : 'bg-gray-200'
+                  className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all ${
+                    s === step
+                      ? 'bg-red-500 text-white'
+                      : s < step
+                      ? 'bg-green-500 text-white'
+                      : 'bg-gray-200 text-gray-600'
                   }`}
-                />
-              )}
-            </div>
-          ))}
-        </div>
-
-        <div className="p-6">
-          {step === 1 && (
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Account Details</h3>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="md:col-span-2">
-                  <FieldLabel required>Full Name</FieldLabel>
-                  <input
-                    type="text"
-                    value={formData.fullName}
-                    onChange={(e) => updateField('fullName', e.target.value)}
-                    placeholder="John Doe"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  />
+                >
+                  {s}
                 </div>
-
-                <div>
-                  <FieldLabel required>Username</FieldLabel>
-                  <input
-                    type="text"
-                    value={formData.username}
-                    onChange={(e) => updateField('username', e.target.value.toLowerCase())}
-                    placeholder="johndoe"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                {s < 3 && (
+                  <div
+                    className={`flex-1 h-1 mx-2 transition-all ${
+                      s < step ? 'bg-green-500' : 'bg-gray-200'
+                    }`}
                   />
-                </div>
-
-                <div>
-                  <FieldLabel required>Email</FieldLabel>
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => updateField('email', e.target.value)}
-                    placeholder="john@example.com"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  />
-                </div>
-
-                <div className="md:col-span-2">
-                  <FieldLabel>Phone</FieldLabel>
-                  <input
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => updateField('phone', e.target.value)}
-                    placeholder="(555) 123-4567"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <FieldLabel required>Password</FieldLabel>
-                  <input
-                    type="password"
-                    value={formData.password}
-                    onChange={(e) => updateField('password', e.target.value)}
-                    placeholder="Min 6 characters"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <FieldLabel required>Confirm Password</FieldLabel>
-                  <input
-                    type="password"
-                    value={formData.confirmPassword}
-                    onChange={(e) => updateField('confirmPassword', e.target.value)}
-                    placeholder="Confirm password"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  />
-                  {formData.confirmPassword && formData.password !== formData.confirmPassword && (
-                    <p className="text-xs text-red-500 mt-1">Passwords don't match</p>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {step === 2 && (
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Profile Information</h3>
-
-              <div className="flex flex-col items-center mb-6">
-                {profilePhoto ? (
-                  <div className="relative">
-                    <img
-                      src={profilePhoto}
-                      alt="Profile"
-                      className="w-32 h-32 rounded-full object-cover border-4 border-red-200"
-                    />
-                    <button
-                      onClick={() => setProfilePhoto('')}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                    >
-                      <X size={16} />
-                    </button>
-                  </div>
-                ) : (
-                  <label className="w-32 h-32 rounded-full border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-red-500 hover:bg-red-50 transition-colors">
-                    <Upload size={32} className="text-gray-400 mb-2" />
-                    <span className="text-xs text-gray-500">Upload Photo</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handlePhotoUpload(e, 'profile')}
-                      className="hidden"
-                    />
-                  </label>
                 )}
               </div>
+            ))}
+          </div>
+        )}
 
-              <div>
-                <FieldLabel>Bio</FieldLabel>
-                <textarea
-                  value={formData.bio}
-                  onChange={(e) => updateField('bio', e.target.value)}
-                  rows={4}
-                  placeholder="Tell us about yourself..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
-                />
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <FieldLabel>City</FieldLabel>
-                  <input
-                    type="text"
-                    value={formData.city}
-                    onChange={(e) => updateField('city', e.target.value)}
-                    placeholder="Your city"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <FieldLabel>State</FieldLabel>
-                  <select
-                    value={formData.state}
-                    onChange={(e) => updateField('state', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  >
-                    <option value="">Select State</option>
-                    {US_STATES.map((state) => (
-                      <option key={state} value={state}>
-                        {state}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {step === 3 && (
+        <div className="p-6">
+          {mode === 'signin' ? (
             <div className="space-y-4">
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                 <div className="flex gap-3">
-                  <Shield className="text-blue-600 flex-shrink-0" size={24} />
+                  <Mail className="text-blue-600 flex-shrink-0" size={24} />
                   <div>
-                    <h4 className="font-semibold text-blue-900 mb-2">ID Verification</h4>
-                    <p className="text-sm text-blue-800 mb-2">
-                      To maintain trust and safety in our marketplace, we encourage ID verification.
+                    <h4 className="font-semibold text-blue-900 mb-1">Email Verification Required</h4>
+                    <p className="text-sm text-blue-800">
+                      After signing in, please check your email to verify your account if you haven't already.
                     </p>
-                    <ul className="text-sm text-blue-700 space-y-1">
-                      <li>• Your ID photos are encrypted and stored securely</li>
-                      <li>• Only verified staff can access verification documents</li>
-                      <li>• You can skip this step and verify later</li>
-                    </ul>
                   </div>
                 </div>
               </div>
 
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Driver's License Photos
-              </h3>
+              <div>
+                <FieldLabel required>Email</FieldLabel>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => updateField('email', e.target.value)}
+                  placeholder="john@example.com"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                />
+              </div>
 
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <FieldLabel>Front of License</FieldLabel>
-                  {idFront ? (
-                    <div className="relative">
-                      <img
-                        src={idFront}
-                        alt="ID Front"
-                        className="w-full h-48 object-cover rounded-lg border-2 border-gray-300"
-                      />
-                      <button
-                        onClick={() => setIdFront('')}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                      >
-                        <X size={16} />
-                      </button>
-                    </div>
-                  ) : (
-                    <label className="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-red-500 hover:bg-red-50 transition-colors">
-                      <Upload size={32} className="text-gray-400 mb-2" />
-                      <span className="text-sm text-gray-500">Upload Front</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => handlePhotoUpload(e, 'idFront')}
-                        className="hidden"
-                      />
-                    </label>
-                  )}
-                </div>
+              <div>
+                <FieldLabel required>Password</FieldLabel>
+                <input
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => updateField('password', e.target.value)}
+                  placeholder="Enter your password"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' && formData.email && formData.password) {
+                      handleSignIn();
+                    }
+                  }}
+                />
+              </div>
 
-                <div>
-                  <FieldLabel>Back of License</FieldLabel>
-                  {idBack ? (
-                    <div className="relative">
-                      <img
-                        src={idBack}
-                        alt="ID Back"
-                        className="w-full h-48 object-cover rounded-lg border-2 border-gray-300"
-                      />
-                      <button
-                        onClick={() => setIdBack('')}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                      >
-                        <X size={16} />
-                      </button>
-                    </div>
-                  ) : (
-                    <label className="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-red-500 hover:bg-red-50 transition-colors">
-                      <Upload size={32} className="text-gray-400 mb-2" />
-                      <span className="text-sm text-gray-500">Upload Back</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => handlePhotoUpload(e, 'idBack')}
-                        className="hidden"
-                      />
-                    </label>
-                  )}
-                </div>
+              <button
+                onClick={handleSignIn}
+                disabled={!formData.email || !formData.password || isSubmitting}
+                className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? 'Signing In...' : 'Sign In'}
+              </button>
+
+              <div className="text-center mt-4">
+                <p className="text-sm text-gray-600">
+                  Don't have an account?{' '}
+                  <button
+                    onClick={() => {
+                      setMode('signup');
+                      setStep(1);
+                    }}
+                    className="text-red-600 hover:text-red-700 font-semibold"
+                  >
+                    Sign Up
+                  </button>
+                </p>
               </div>
             </div>
+          ) : (
+            <>
+              {step === 1 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Account Details</h3>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="md:col-span-2">
+                      <FieldLabel required>Full Name</FieldLabel>
+                      <input
+                        type="text"
+                        value={formData.fullName}
+                        onChange={(e) => updateField('fullName', e.target.value)}
+                        placeholder="John Doe"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    <div>
+                      <FieldLabel required>Username</FieldLabel>
+                      <input
+                        type="text"
+                        value={formData.username}
+                        onChange={(e) => updateField('username', e.target.value.toLowerCase())}
+                        placeholder="johndoe"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    <div>
+                      <FieldLabel required>Email</FieldLabel>
+                      <input
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => updateField('email', e.target.value)}
+                        placeholder="john@example.com"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <FieldLabel>Phone</FieldLabel>
+                      <input
+                        type="tel"
+                        value={formData.phone}
+                        onChange={(e) => updateField('phone', e.target.value)}
+                        placeholder="(555) 123-4567"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    <div>
+                      <FieldLabel required>Password</FieldLabel>
+                      <input
+                        type="password"
+                        value={formData.password}
+                        onChange={(e) => updateField('password', e.target.value)}
+                        placeholder="Min 6 characters"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    <div>
+                      <FieldLabel required>Confirm Password</FieldLabel>
+                      <input
+                        type="password"
+                        value={formData.confirmPassword}
+                        onChange={(e) => updateField('confirmPassword', e.target.value)}
+                        placeholder="Confirm password"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      />
+                      {formData.confirmPassword && formData.password !== formData.confirmPassword && (
+                        <p className="text-xs text-red-500 mt-1">Passwords don't match</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="text-center mt-4">
+                    <p className="text-sm text-gray-600">
+                      Already have an account?{' '}
+                      <button
+                        onClick={() => setMode('signin')}
+                        className="text-red-600 hover:text-red-700 font-semibold"
+                      >
+                        Sign In
+                      </button>
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {step === 2 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Profile Information</h3>
+
+                  <div className="flex flex-col items-center mb-6">
+                    {profilePhoto ? (
+                      <div className="relative">
+                        <img
+                          src={profilePhoto}
+                          alt="Profile"
+                          className="w-32 h-32 rounded-full object-cover border-4 border-red-200"
+                        />
+                        <button
+                          onClick={() => setProfilePhoto('')}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ) : (
+                      <label className="w-32 h-32 rounded-full border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-red-500 hover:bg-red-50 transition-colors">
+                        <Upload size={32} className="text-gray-400 mb-2" />
+                        <span className="text-xs text-gray-500">Upload Photo</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handlePhotoUpload(e, 'profile')}
+                          className="hidden"
+                        />
+                      </label>
+                    )}
+                  </div>
+
+                  <div>
+                    <FieldLabel>Bio</FieldLabel>
+                    <textarea
+                      value={formData.bio}
+                      onChange={(e) => updateField('bio', e.target.value)}
+                      rows={4}
+                      placeholder="Tell us about yourself..."
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+                    />
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <FieldLabel>City</FieldLabel>
+                      <input
+                        type="text"
+                        value={formData.city}
+                        onChange={(e) => updateField('city', e.target.value)}
+                        placeholder="Your city"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    <div>
+                      <FieldLabel>State</FieldLabel>
+                      <select
+                        value={formData.state}
+                        onChange={(e) => updateField('state', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      >
+                        <option value="">Select State</option>
+                        {US_STATES.map((state) => (
+                          <option key={state} value={state}>
+                            {state}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {step === 3 && (
+                <div className="space-y-4">
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                    <div className="flex gap-3">
+                      <Shield className="text-red-600 flex-shrink-0" size={24} />
+                      <div>
+                        <h4 className="font-semibold text-red-900 mb-2">Required: ID Verification</h4>
+                        <p className="text-sm text-red-800 mb-2">
+                          To maintain trust and safety in our marketplace, driver's license verification is required for all users.
+                        </p>
+                        <ul className="text-sm text-red-700 space-y-1">
+                          <li>• Your ID photos are encrypted and stored securely</li>
+                          <li>• Only verified staff can access verification documents</li>
+                          <li>• Both front and back of license are required to complete registration</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                    Driver's License Photos <span className="text-red-500">*</span>
+                  </h3>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <FieldLabel required>Front of License</FieldLabel>
+                      {idFront ? (
+                        <div className="relative">
+                          <img
+                            src={idFront}
+                            alt="ID Front"
+                            className="w-full h-48 object-cover rounded-lg border-2 border-green-500"
+                          />
+                          <button
+                            onClick={() => setIdFront('')}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                          >
+                            <X size={16} />
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="w-full h-48 border-2 border-dashed border-red-400 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-red-500 hover:bg-red-50 transition-colors">
+                          <Upload size={32} className="text-red-400 mb-2" />
+                          <span className="text-sm text-red-600 font-semibold">Upload Front (Required)</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handlePhotoUpload(e, 'idFront')}
+                            className="hidden"
+                          />
+                        </label>
+                      )}
+                    </div>
+
+                    <div>
+                      <FieldLabel required>Back of License</FieldLabel>
+                      {idBack ? (
+                        <div className="relative">
+                          <img
+                            src={idBack}
+                            alt="ID Back"
+                            className="w-full h-48 object-cover rounded-lg border-2 border-green-500"
+                          />
+                          <button
+                            onClick={() => setIdBack('')}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                          >
+                            <X size={16} />
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="w-full h-48 border-2 border-dashed border-red-400 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-red-500 hover:bg-red-50 transition-colors">
+                          <Upload size={32} className="text-red-400 mb-2" />
+                          <span className="text-sm text-red-600 font-semibold">Upload Back (Required)</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handlePhotoUpload(e, 'idBack')}
+                            className="hidden"
+                          />
+                        </label>
+                      )}
+                    </div>
+                  </div>
+
+                  {(!idFront || !idBack) && (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mt-4">
+                      <p className="text-sm text-yellow-800">
+                        <Lock className="inline mr-1" size={16} />
+                        You must upload both front and back of your driver's license to complete registration.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
           )}
         </div>
 
-        <div className="border-t border-gray-200 px-6 py-4 flex items-center justify-between bg-gray-50 rounded-b-2xl">
-          <button
-            onClick={() => setStep((s) => Math.max(1, s - 1))}
-            disabled={step === 1}
-            className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <ChevronLeft size={20} />
-            Back
-          </button>
-
-          {step < 3 ? (
+        {mode === 'signup' && (
+          <div className="border-t border-gray-200 px-6 py-4 flex items-center justify-between bg-gray-50 rounded-b-2xl">
             <button
-              onClick={() => setStep((s) => s + 1)}
-              disabled={(step === 1 && !canProceedToStep2()) || (step === 2 && !canProceedToStep3())}
-              className="flex items-center gap-2 px-6 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={() => setStep((s) => Math.max(1, s - 1))}
+              disabled={step === 1}
+              className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Next
-              <ChevronRight size={20} />
+              <ChevronLeft size={20} />
+              Back
             </button>
-          ) : (
-            <div className="flex gap-3">
+
+            {step < 3 ? (
               <button
-                onClick={() => handleSubmit(true)}
-                disabled={isSubmitting}
-                className="px-6 py-2 bg-gray-500 text-white font-semibold rounded-lg hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => setStep((s) => s + 1)}
+                disabled={(step === 1 && !canProceedToStep2()) || (step === 2 && !canProceedToStep3())}
+                className="flex items-center gap-2 px-6 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Skip Verification
+                Next
+                <ChevronRight size={20} />
               </button>
+            ) : (
               <button
-                onClick={() => handleSubmit(false)}
-                disabled={!idFront || !idBack || isSubmitting}
+                onClick={handleSignUp}
+                disabled={!canCompleteSignup() || isSubmitting}
                 className="px-6 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? 'Creating Account...' : 'Complete Setup'}
               </button>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
