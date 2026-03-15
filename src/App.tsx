@@ -411,24 +411,29 @@ export default function App() {
                   <div>
                     <p className="text-red-500 font-semibold mb-2">Success Fee</p>
                     <p className="text-gray-400">
-                      <span className="font-bold text-white">5%</span> of final sale price - Only charged when your vehicle sells
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-red-500 font-semibold mb-2">Payment Processing</p>
-                    <p className="text-gray-400">
-                      <span className="font-bold text-white">2.9% + $0.30</span> standard payment processing fee
+                      <span className="font-bold text-white">5%</span> of final sale price (capped at $4,500) - Only charged when your vehicle sells
                     </p>
                   </div>
                   <div className="pt-4 border-t border-gray-700">
-                    <p className="text-gray-400">
-                      <span className="font-bold text-white">Example:</span> If your car sells for $50,000:
+                    <p className="text-gray-400 mb-3">
+                      <span className="font-bold text-white">Examples:</span>
                     </p>
-                    <ul className="ml-4 mt-2 space-y-1 text-gray-400">
-                      <li>• Success Fee: $2,500 (5%)</li>
-                      <li>• Payment Processing: ~$1,450</li>
-                      <li>• <span className="text-green-400 font-semibold">You Receive: ~$46,050</span></li>
-                    </ul>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-gray-400">If your car sells for <span className="font-semibold text-white">$50,000</span>:</p>
+                        <ul className="ml-4 mt-1 space-y-1 text-gray-400">
+                          <li>• Success Fee: $2,500 (5%)</li>
+                          <li>• <span className="text-green-400 font-semibold">You Receive: $47,500</span></li>
+                        </ul>
+                      </div>
+                      <div>
+                        <p className="text-gray-400">If your car sells for <span className="font-semibold text-white">$100,000</span>:</p>
+                        <ul className="ml-4 mt-1 space-y-1 text-gray-400">
+                          <li>• Success Fee: $4,500 (capped)</li>
+                          <li>• <span className="text-green-400 font-semibold">You Receive: $95,500</span></li>
+                        </ul>
+                      </div>
+                    </div>
                   </div>
                   <div className="pt-4 border-t border-gray-700">
                     <p className="text-xs text-gray-500">
