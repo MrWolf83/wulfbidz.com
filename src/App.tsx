@@ -209,8 +209,8 @@ export default function App() {
           <div
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{
-              backgroundImage: 'url(https://images.pexels.com/photos/544542/pexels-photo-544542.jpeg?auto=compress&cs=tinysrgb&w=1600)',
-              opacity: 0.5
+              backgroundImage: 'url(/1967-Ford-Mustang-Eleanor-Exterior-003-Front-ChromeCars.jpg)',
+              opacity: 0.75
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-gray-900/90 via-gray-900/70 to-gray-900/90" />
