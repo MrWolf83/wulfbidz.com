@@ -64,6 +64,7 @@ export function SellModal({ onClose }: SellModalProps) {
       formData.year &&
       formData.make &&
       formData.model &&
+      formData.vin &&
       formData.mileage &&
       formData.transmission &&
       formData.condition
@@ -72,6 +73,12 @@ export function SellModal({ onClose }: SellModalProps) {
 
   const canProceedToStep3 = () => {
     return formData.description.length >= 50 && photos.length >= 1;
+  };
+
+  const formatMileage = (value: string) => {
+    const num = value.replace(/,/g, '');
+    if (!num || isNaN(Number(num))) return '';
+    return Number(num).toLocaleString('en-US');
   };
 
   const canSubmit = () => {
@@ -285,7 +292,7 @@ export function SellModal({ onClose }: SellModalProps) {
                 </div>
 
                 <div>
-                  <FieldLabel>VIN</FieldLabel>
+                  <FieldLabel required>VIN</FieldLabel>
                   <input
                     type="text"
                     value={formData.vin}
@@ -299,9 +306,14 @@ export function SellModal({ onClose }: SellModalProps) {
                 <div>
                   <FieldLabel required>Mileage</FieldLabel>
                   <input
-                    type="number"
-                    value={formData.mileage}
-                    onChange={(e) => updateField('mileage', e.target.value)}
+                    type="text"
+                    value={formatMileage(formData.mileage)}
+                    onChange={(e) => {
+                      const rawValue = e.target.value.replace(/,/g, '');
+                      if (rawValue === '' || !isNaN(Number(rawValue))) {
+                        updateField('mileage', rawValue);
+                      }
+                    }}
                     placeholder="Enter mileage"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   />
