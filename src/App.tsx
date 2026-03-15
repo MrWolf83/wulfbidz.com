@@ -20,6 +20,7 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
+    updateMetaTags();
     checkAuth();
     loadListings();
 
@@ -31,6 +32,15 @@ export default function App() {
       authListener?.subscription.unsubscribe();
     };
   }, []);
+
+  const updateMetaTags = () => {
+    document.title = 'WulfBidz - Verified Car Auctions & Live Bidding | wulfbidz.com';
+
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'WulfBidz is your trusted online car auction marketplace. Buy and sell verified vehicles with live bidding, transparent pricing, and secure transactions.');
+    }
+  };
 
   const checkAuth = async () => {
     const { data: { user } } = await supabase.auth.getUser();
