@@ -193,3 +193,65 @@ export const SPECIALTY_TRIMS = [
   'Special Edition',
   'Commemorative Edition'
 ];
+
+interface TrimMapping {
+  make: string;
+  model: string;
+  yearRange?: { min?: number; max?: number };
+  trims: string[];
+}
+
+export const VEHICLE_TRIMS: TrimMapping[] = [
+  { make: 'Ford', model: 'Mustang', trims: ['Base', 'EcoBoost', 'EcoBoost Premium', 'GT', 'GT Premium', 'Mach 1', 'Bullitt', 'Shelby GT350', 'Shelby GT500', 'Boss 302', 'Boss 429', 'California Special', 'Saleen', 'Roush'] },
+  { make: 'Ford', model: 'F-150', trims: ['XL', 'XLT', 'Lariat', 'King Ranch', 'Platinum', 'Limited', 'Raptor', 'Tremor', 'STX', 'FX4'] },
+  { make: 'Ford', model: 'Bronco', trims: ['Base', 'Big Bend', 'Black Diamond', 'Outer Banks', 'Badlands', 'Wildtrak', 'Raptor', 'Heritage Edition'] },
+  { make: 'Chevrolet', model: 'Camaro', trims: ['LS', 'LT', 'SS', 'ZL1', 'Z/28', '1LE', 'RS', 'Yenko', 'COPO'] },
+  { make: 'Chevrolet', model: 'Corvette', trims: ['Stingray', 'Z51', 'Z06', 'ZR1', 'Grand Sport', 'Callaway'] },
+  { make: 'Chevrolet', model: 'Silverado 1500', trims: ['WT', 'Custom', 'LT', 'RST', 'LTZ', 'High Country', 'ZR2', 'Trail Boss'] },
+  { make: 'Dodge', model: 'Challenger', trims: ['SXT', 'GT', 'R/T', 'R/T Scat Pack', 'SRT', 'SRT Hellcat', 'SRT Hellcat Redeye', 'SRT Demon', 'Jailbreak', 'Shaker'] },
+  { make: 'Dodge', model: 'Charger', trims: ['SXT', 'GT', 'R/T', 'R/T Scat Pack', 'SRT', 'SRT Hellcat', 'SRT Hellcat Redeye', 'Daytona', 'Super Bee'] },
+  { make: 'Dodge', model: 'Viper', trims: ['RT/10', 'GTS', 'ACR', 'SRT-10', 'TA'] },
+  { make: 'Porsche', model: '911', trims: ['Carrera', 'Carrera S', 'Carrera 4', 'Carrera 4S', 'Targa', 'Turbo', 'Turbo S', 'GT2', 'GT3', 'GT3 RS', 'GT4', 'Spyder'] },
+  { make: 'Porsche', model: 'Cayenne', trims: ['Base', 'S', 'GTS', 'Turbo', 'Turbo S', 'E-Hybrid', 'Coupe'] },
+  { make: 'BMW', model: '3 Series', trims: ['320i', '330i', '330e', '340i', 'M340i', 'M3', 'M Sport', 'M Performance'] },
+  { make: 'BMW', model: 'M3', trims: ['Base', 'Competition', 'CS', 'CSL'] },
+  { make: 'BMW', model: 'M5', trims: ['Base', 'Competition', 'CS'] },
+  { make: 'Mercedes-Benz', model: 'C-Class', trims: ['C300', 'C43 AMG', 'C63 AMG', 'C63 S AMG'] },
+  { make: 'Mercedes-Benz', model: 'E-Class', trims: ['E300', 'E350', 'E450', 'E53 AMG', 'E63 AMG', 'E63 S AMG'] },
+  { make: 'Mercedes-Benz', model: 'S-Class', trims: ['S500', 'S580', 'S63 AMG', 'Maybach S580', 'Maybach S680'] },
+  { make: 'Mercedes-Benz', model: 'G-Class', trims: ['G550', 'G63 AMG'] },
+  { make: 'Audi', model: 'A4', trims: ['Premium', 'Premium Plus', 'Prestige', 'S4', 'RS4'] },
+  { make: 'Audi', model: 'Q5', trims: ['Premium', 'Premium Plus', 'Prestige', 'SQ5', 'RS Q5'] },
+  { make: 'Honda', model: 'Civic', trims: ['LX', 'Sport', 'EX', 'EX-L', 'Touring', 'Si', 'Type R'] },
+  { make: 'Honda', model: 'Accord', trims: ['LX', 'Sport', 'EX', 'EX-L', 'Touring', 'Hybrid'] },
+  { make: 'Toyota', model: 'Camry', trims: ['LE', 'SE', 'XLE', 'XSE', 'TRD', 'Hybrid LE', 'Hybrid SE', 'Hybrid XLE'] },
+  { make: 'Toyota', model: 'Tacoma', trims: ['SR', 'SR5', 'TRD Sport', 'TRD Off-Road', 'Limited', 'TRD Pro'] },
+  { make: 'Toyota', model: '4Runner', trims: ['SR5', 'TRD Off-Road', 'TRD Off-Road Premium', 'Limited', 'TRD Pro', 'Nightshade'] },
+  { make: 'Subaru', model: 'WRX', trims: ['Base', 'Premium', 'Limited', 'STI'] },
+  { make: 'Subaru', model: 'Impreza', trims: ['Base', 'Premium', 'Sport', 'Limited'] },
+  { make: 'Nissan', model: 'GT-R', trims: ['Premium', 'Track Edition', 'Nismo'] },
+  { make: 'Nissan', model: '370Z', trims: ['Base', 'Sport', 'Touring', 'Nismo'] },
+  { make: 'Tesla', model: 'Model 3', trims: ['Standard Range Plus', 'Long Range', 'Performance'] },
+  { make: 'Tesla', model: 'Model S', trims: ['Long Range', 'Plaid'] },
+  { make: 'Tesla', model: 'Model X', trims: ['Long Range', 'Plaid'] },
+  { make: 'Jeep', model: 'Wrangler', trims: ['Sport', 'Sport S', 'Willys', 'Sahara', 'Rubicon', '4xe', '392'] },
+  { make: 'Jeep', model: 'Grand Cherokee', trims: ['Laredo', 'Limited', 'Trailhawk', 'Overland', 'Summit', 'SRT', 'Trackhawk'] },
+  { make: 'Ram', model: '1500', trims: ['Tradesman', 'Big Horn', 'Laramie', 'Rebel', 'Longhorn', 'Limited', 'TRX'] },
+  { make: 'GMC', model: 'Sierra 1500', trims: ['Base', 'SLE', 'Elevation', 'SLT', 'AT4', 'Denali', 'Denali Ultimate'] },
+  { make: 'Lamborghini', model: 'Huracán', trims: ['LP580-2', 'LP610-4', 'Performante', 'EVO', 'STO', 'Tecnica'] },
+  { make: 'Ferrari', model: '488', trims: ['GTB', 'Spider', 'Pista'] },
+  { make: 'Pontiac', model: 'Firebird', trims: ['Base', 'Formula', 'Trans Am', 'Trans Am WS6', 'Trans Am Ram Air'] },
+  { make: 'Pontiac', model: 'GTO', trims: ['Base', 'Judge'] },
+];
+
+export function getTrimsForVehicle(make: string, model: string): string[] {
+  const matchingVehicle = VEHICLE_TRIMS.find(
+    (v) => v.make === make && v.model === model
+  );
+
+  if (matchingVehicle) {
+    return matchingVehicle.trims;
+  }
+
+  return ['Base', 'Sport', 'Limited', 'Premium', 'Luxury', 'Custom'];
+}

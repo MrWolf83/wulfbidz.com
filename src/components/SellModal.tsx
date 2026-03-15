@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { X, Upload, ChevronRight, ChevronLeft } from 'lucide-react';
 import { FieldLabel } from './ui/FieldLabel';
-import { YEARS, MAKES_MODELS, US_STATES, TRANSMISSIONS, CONDITIONS, SPECIALTY_TRIMS } from '../data/constants';
+import { YEARS, MAKES_MODELS, US_STATES, TRANSMISSIONS, CONDITIONS, SPECIALTY_TRIMS, getTrimsForVehicle } from '../data/constants';
 import { supabase } from '../lib/supabase';
 
 interface SellModalProps {
@@ -145,6 +145,7 @@ export function SellModal({ onClose }: SellModalProps) {
   };
 
   const availableModels = formData.make ? MAKES_MODELS[formData.make] || [] : [];
+  const availableTrims = formData.make && formData.model ? getTrimsForVehicle(formData.make, formData.model) : [];
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
@@ -249,9 +250,19 @@ export function SellModal({ onClose }: SellModalProps) {
                   <select
                     value={formData.trim}
                     onChange={(e) => updateField('trim', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    disabled={!formData.model}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:bg-gray-100"
                   >
                     <option value="">Select Trim (Optional)</option>
+                    {availableTrims.length > 0 && (
+                      <optgroup label={`${formData.make} ${formData.model} Trims`}>
+                        {availableTrims.map((trim) => (
+                          <option key={trim} value={trim}>
+                            {trim}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
                     <optgroup label="Exotic & Performance Editions">
                       {SPECIALTY_TRIMS.map((trim) => (
                         <option key={trim} value={trim}>
