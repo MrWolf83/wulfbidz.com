@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { X, Gauge, MapPin, Calendar, Cog, User, DollarSign } from 'lucide-react';
+import { X, Gauge, MapPin, Calendar, Cog, User, DollarSign, AlertCircle } from 'lucide-react';
 import { PhotoGrid } from './ui/PhotoGrid';
 import { CountdownBadge } from './ui/CountdownBadge';
 import { ExpandableDescription } from './ui/ExpandableDescription';
 import { supabase, type Listing, type Bid } from '../lib/supabase';
+import ComplaintModal from './ComplaintModal';
 
 interface ListingModalProps {
   listing: Listing;
@@ -16,13 +17,16 @@ export function ListingModal({ listing, onClose }: ListingModalProps) {
   );
   const [bids, setBids] = useState<Bid[]>([]);
   const [isPlacingBid, setIsPlacingBid] = useState(false);
-  const [currentUser, setCurrentUser] = useState<{ id: string } | null>(null);
+  const [currentUser, setCurrentUser] = useState<{ id: string; email?: string } | null>(null);
+  const [showComplaintModal, setShowComplaintModal] = useState(false);
+  const [sellerEmail, setSellerEmail] = useState<string>('');
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       setCurrentUser(data.user);
     });
 
+    loadSellerEmail();
     loadBids();
 
     const channel = supabase
@@ -45,6 +49,18 @@ export function ListingModal({ listing, onClose }: ListingModalProps) {
       supabase.removeChannel(channel);
     };
   }, [listing.id]);
+
+  const loadSellerEmail = async () => {
+    const { data } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('id', listing.seller_id)
+      .maybeSingle();
+
+    if (data) {
+      setSellerEmail(data.email || 'Unknown');
+    }
+  };
 
   const loadBids = async () => {
     const { data } = await supabase
@@ -289,8 +305,35 @@ export function ListingModal({ listing, onClose }: ListingModalProps) {
               </div>
             </div>
           </div>
+
+          {currentUser && currentUser.id !== listing.seller_id && bids.length > 0 && (
+            <div className="border-t border-gray-200 pt-6">
+              <button
+                onClick={() => setShowComplaintModal(true)}
+                className="flex items-center gap-2 text-sm text-gray-600 hover:text-red-600 transition-colors"
+              >
+                <AlertCircle size={16} />
+                <span>Report an issue with this deal</span>
+              </button>
+              <p className="text-xs text-gray-500 mt-1 ml-6">
+                If the seller backed out or there was an issue with this transaction
+              </p>
+            </div>
+          )}
         </div>
       </div>
+
+      {showComplaintModal && currentUser && (
+        <ComplaintModal
+          isOpen={showComplaintModal}
+          onClose={() => setShowComplaintModal(false)}
+          listingId={listing.id}
+          listingTitle={`${listing.year} ${listing.make} ${listing.model}`}
+          accusedId={listing.seller_id}
+          accusedEmail={sellerEmail}
+          complaintType="seller_backed_out"
+        />
+      )}
     </div>
   );
 }

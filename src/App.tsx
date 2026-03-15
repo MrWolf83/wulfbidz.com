@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, User, LogOut, Menu, X, Car, Shield, DollarSign, Clock } from 'lucide-react';
+import { Plus, Search, User, LogOut, Menu, X, Car, Shield, DollarSign, Clock, List } from 'lucide-react';
 import { supabase, type Listing } from './lib/supabase';
 import { CarCard } from './components/CarCard';
 import { ListingModal } from './components/ListingModal';
 import { SellModal } from './components/SellModal';
 import { ProfileModal } from './components/ProfileModal';
 import { BuyerSearchModal } from './components/BuyerSearchModal';
+import MyListingsModal from './components/MyListingsModal';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<{ id: string; email: string } | null>(null);
@@ -15,6 +16,7 @@ export default function App() {
   const [showSellModal, setShowSellModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
+  const [showMyListingsModal, setShowMyListingsModal] = useState(false);
   const [currentPage, setCurrentPage] = useState<'home' | 'results'>('home');
   const [isLoading, setIsLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -130,13 +132,22 @@ export default function App() {
                 Buy a Car
               </button>
               {currentUser && (
-                <button
-                  onClick={() => setShowSellModal(true)}
-                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-                >
-                  <Plus size={18} />
-                  Sell Your Car
-                </button>
+                <>
+                  <button
+                    onClick={() => setShowMyListingsModal(true)}
+                    className="text-gray-300 hover:text-white transition-colors flex items-center gap-1"
+                  >
+                    <List size={18} />
+                    My Listings
+                  </button>
+                  <button
+                    onClick={() => setShowSellModal(true)}
+                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                  >
+                    <Plus size={18} />
+                    Sell Your Car
+                  </button>
+                </>
               )}
             </nav>
 
@@ -198,16 +209,28 @@ export default function App() {
                 Buy a Car
               </button>
               {currentUser && (
-                <button
-                  onClick={() => {
-                    setShowSellModal(true);
-                    setMobileMenuOpen(false);
-                  }}
-                  className="block w-full text-left bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-                >
-                  <Plus size={18} />
-                  Sell Your Car
-                </button>
+                <>
+                  <button
+                    onClick={() => {
+                      setShowMyListingsModal(true);
+                      setMobileMenuOpen(false);
+                    }}
+                    className="block w-full text-left text-gray-300 hover:text-white py-2 flex items-center gap-2 transition-colors"
+                  >
+                    <List size={18} />
+                    My Listings
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowSellModal(true);
+                      setMobileMenuOpen(false);
+                    }}
+                    className="block w-full text-left bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                  >
+                    <Plus size={18} />
+                    Sell Your Car
+                  </button>
+                </>
               )}
             </div>
           )}
@@ -500,6 +523,13 @@ export default function App() {
             handleSelectListing(listing);
             setShowSearchModal(false);
           }}
+        />
+      )}
+
+      {showMyListingsModal && (
+        <MyListingsModal
+          isOpen={showMyListingsModal}
+          onClose={() => setShowMyListingsModal(false)}
         />
       )}
     </div>
