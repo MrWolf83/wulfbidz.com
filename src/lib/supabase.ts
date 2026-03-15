@@ -29,6 +29,7 @@ export interface Profile {
 export interface Listing {
   id: string;
   seller_id: string;
+  lot_number: number;
   title: string;
   year: number;
   make: string;

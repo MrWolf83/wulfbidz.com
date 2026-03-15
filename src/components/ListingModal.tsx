@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Gauge, MapPin, Calendar, Cog, User, DollarSign, AlertCircle } from 'lucide-react';
+import { X, Gauge, MapPin, Calendar, Cog, User, DollarSign, AlertCircle, Hash } from 'lucide-react';
 import { PhotoGrid } from './ui/PhotoGrid';
 import { CountdownBadge } from './ui/CountdownBadge';
 import { ExpandableDescription } from './ui/ExpandableDescription';
@@ -9,9 +9,10 @@ import ComplaintModal from './ComplaintModal';
 interface ListingModalProps {
   listing: Listing;
   onClose: () => void;
+  onShowAuth?: () => void;
 }
 
-export function ListingModal({ listing, onClose }: ListingModalProps) {
+export function ListingModal({ listing, onClose, onShowAuth }: ListingModalProps) {
   const [bidAmount, setBidAmount] = useState(
     listing.current_bid > 0 ? listing.current_bid + 100 : listing.starting_bid
   );
@@ -20,6 +21,7 @@ export function ListingModal({ listing, onClose }: ListingModalProps) {
   const [currentUser, setCurrentUser] = useState<{ id: string; email?: string } | null>(null);
   const [showComplaintModal, setShowComplaintModal] = useState(false);
   const [sellerEmail, setSellerEmail] = useState<string>('');
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -80,7 +82,7 @@ export function ListingModal({ listing, onClose }: ListingModalProps) {
 
   const handlePlaceBid = async () => {
     if (!currentUser) {
-      alert('Please sign in to place a bid');
+      setShowAuthPrompt(true);
       return;
     }
 
@@ -120,7 +122,7 @@ export function ListingModal({ listing, onClose }: ListingModalProps) {
 
   const handleBuyNow = async () => {
     if (!currentUser) {
-      alert('Please sign in to buy now');
+      setShowAuthPrompt(true);
       return;
     }
 
@@ -141,9 +143,15 @@ export function ListingModal({ listing, onClose }: ListingModalProps) {
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
       <div className="bg-white rounded-2xl max-w-5xl w-full my-8 shadow-2xl">
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
-          <h2 className="text-2xl font-bold text-gray-900">
-            {listing.year} {listing.make} {listing.model}
-          </h2>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">
+              {listing.year} {listing.make} {listing.model}
+            </h2>
+            <div className="flex items-center gap-2 mt-1">
+              <Hash size={14} className="text-gray-400" />
+              <span className="text-sm text-gray-500 font-medium">LOT {listing.lot_number}</span>
+            </div>
+          </div>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -264,10 +272,9 @@ export function ListingModal({ listing, onClose }: ListingModalProps) {
 
                   {!currentUser && (
                     <div className="text-center py-4">
-                      <p className="text-gray-600 mb-3">Sign in to place a bid</p>
-                      <button className="text-red-600 hover:text-red-700 font-semibold">
-                        Sign In
-                      </button>
+                      <p className="text-gray-600 text-sm">
+                        Create a free account to place bids
+                      </p>
                     </div>
                   )}
                 </div>
@@ -333,6 +340,46 @@ export function ListingModal({ listing, onClose }: ListingModalProps) {
           accusedEmail={sellerEmail}
           complaintType="seller_backed_out"
         />
+      )}
+
+      {showAuthPrompt && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[60]">
+          <div className="bg-white rounded-2xl max-w-md w-full mx-4 p-8 shadow-2xl">
+            <h3 className="text-2xl font-bold text-gray-900 mb-3">Create Your Free Account</h3>
+            <p className="text-gray-600 mb-6">
+              Sign up now to start bidding on this vehicle and thousands of others. It's quick, free, and takes less than a minute.
+            </p>
+            <div className="space-y-3">
+              <button
+                onClick={() => {
+                  setShowAuthPrompt(false);
+                  onShowAuth?.();
+                }}
+                className="w-full bg-red-500 text-white font-semibold py-3 rounded-lg hover:bg-red-600 transition-colors"
+              >
+                Create Free Account
+              </button>
+              <button
+                onClick={() => setShowAuthPrompt(false)}
+                className="w-full bg-gray-100 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Maybe Later
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 text-center mt-4">
+              Already have an account?{' '}
+              <button
+                onClick={() => {
+                  setShowAuthPrompt(false);
+                  onShowAuth?.();
+                }}
+                className="text-red-600 hover:text-red-700 font-medium"
+              >
+                Sign In
+              </button>
+            </p>
+          </div>
+        </div>
       )}
     </div>
   );

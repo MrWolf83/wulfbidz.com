@@ -501,6 +501,10 @@ export default function App() {
             setShowListingModal(false);
             setSelectedListing(null);
           }}
+          onShowAuth={() => {
+            setShowListingModal(false);
+            setShowProfileModal(true);
+          }}
         />
       )}
 

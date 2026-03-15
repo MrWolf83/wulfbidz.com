@@ -32,9 +32,14 @@ export function CarCard({ listing, onClick }: CarCardProps) {
       </div>
 
       <div className="p-5">
-        <h3 className="font-bold text-xl text-gray-900 mb-2 line-clamp-1">
-          {listing.year} {listing.make} {listing.model}
-        </h3>
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <h3 className="font-bold text-xl text-gray-900 line-clamp-1">
+            {listing.year} {listing.make} {listing.model}
+          </h3>
+          <span className="text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-1 rounded whitespace-nowrap">
+            LOT #{listing.lot_number}
+          </span>
+        </div>
         {listing.trim && (
           <p className="text-sm text-gray-600 mb-3">{listing.trim}</p>
         )}
