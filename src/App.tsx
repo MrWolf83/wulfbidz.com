@@ -23,6 +23,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showFees, setShowFees] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     updateMetaTags();
@@ -51,6 +52,14 @@ export default function App() {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       setCurrentUser({ id: user.id, email: user.email || '' });
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      setIsAdmin(profile?.is_admin || false);
     }
     setIsLoading(false);
   };
@@ -156,13 +165,15 @@ export default function App() {
             <div className="flex items-center gap-4">
               {currentUser ? (
                 <>
-                  <button
-                    onClick={() => setShowAdminPanel(true)}
-                    className="p-2 hover:bg-gray-800 rounded-lg transition-colors text-amber-500 hover:text-amber-400"
-                    title="Admin Panel"
-                  >
-                    <Settings size={20} />
-                  </button>
+                  {isAdmin && (
+                    <button
+                      onClick={() => setShowAdminPanel(true)}
+                      className="p-2 hover:bg-gray-800 rounded-lg transition-colors text-amber-500 hover:text-amber-400"
+                      title="Admin Panel"
+                    >
+                      <Settings size={20} />
+                    </button>
+                  )}
                   <button
                     onClick={() => setShowProfileModal(true)}
                     className="p-2 hover:bg-gray-800 rounded-lg transition-colors text-gray-300 hover:text-white"

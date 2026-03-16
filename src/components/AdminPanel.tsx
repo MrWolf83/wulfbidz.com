@@ -13,6 +13,7 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const [message, setMessage] = useState('');
   const [mockUsers, setMockUsers] = useState<any[]>([]);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -24,6 +25,16 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const loadCurrentUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     setCurrentUser(user);
+
+    if (user) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('id', user.id)
+        .single();
+
+      setIsAdmin(profile?.is_admin || false);
+    }
   };
 
   const loadMockUsers = async () => {
@@ -231,6 +242,26 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   };
 
   if (!isOpen) return null;
+
+  if (!isAdmin) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-gradient-to-br from-gray-900 to-black border border-red-500/30 rounded-lg max-w-md w-full p-8">
+          <div className="text-center">
+            <div className="text-red-500 text-6xl mb-4">🚫</div>
+            <h2 className="text-2xl font-bold text-white mb-2">Access Denied</h2>
+            <p className="text-gray-400 mb-6">You do not have administrator privileges to access this panel.</p>
+            <button
+              onClick={onClose}
+              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-6 py-2 rounded-lg transition-all"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
