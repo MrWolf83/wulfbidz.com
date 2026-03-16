@@ -3,12 +3,13 @@ import { X, Upload, ChevronRight, ChevronLeft, Shield, Mail, Lock } from 'lucide
 import { FieldLabel } from './ui/FieldLabel';
 import { US_STATES } from '../data/constants';
 import { supabase } from '../lib/supabase';
+import { PasswordResetModal } from './PasswordResetModal';
 
 interface ProfileModalProps {
   onClose: () => void;
 }
 
-type AuthMode = 'signin' | 'signup';
+type AuthMode = 'signin' | 'signup' | 'reset';
 
 export function ProfileModal({ onClose }: ProfileModalProps) {
   const [mode, setMode] = useState<AuthMode>('signin');
@@ -182,6 +183,15 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
     return null;
   }
 
+  if (mode === 'reset') {
+    return (
+      <PasswordResetModal
+        onClose={onClose}
+        onBackToSignIn={() => setMode('signin')}
+      />
+    );
+  }
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
       <div className="bg-white rounded-2xl max-w-2xl w-full my-8 shadow-2xl">
@@ -299,7 +309,16 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
                 {isSubmitting ? 'Signing In...' : 'Sign In'}
               </button>
 
-              <div className="text-center mt-4">
+              <div className="text-center">
+                <button
+                  onClick={() => setMode('reset')}
+                  className="text-sm text-gray-600 hover:text-red-600 transition-colors"
+                >
+                  Forgot your password?
+                </button>
+              </div>
+
+              <div className="text-center pt-4 border-t border-gray-200">
                 <p className="text-sm text-gray-600">
                   Don't have an account?{' '}
                   <button
