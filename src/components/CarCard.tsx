@@ -1,4 +1,4 @@
-import { MapPin, Gauge } from 'lucide-react';
+import { MapPin, Gauge, Video } from 'lucide-react';
 import { CountdownBadge } from './ui/CountdownBadge';
 import type { Listing } from '../lib/supabase';
 
@@ -9,6 +9,7 @@ interface CarCardProps {
 
 export function CarCard({ listing, onClick }: CarCardProps) {
   const mainPhoto = listing.photos?.[0]?.url || '/1968-shelby-gt500-side.jpg';
+  const hasVideos = listing.video_urls && (listing.video_urls as string[]).length > 0;
 
   return (
     <div
@@ -27,6 +28,12 @@ export function CarCard({ listing, onClick }: CarCardProps) {
         {listing.buy_now_price && (
           <div className="absolute top-3 left-3 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
             Buy Now Available
+          </div>
+        )}
+        {hasVideos && (
+          <div className="absolute bottom-3 left-3 bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+            <Video size={12} />
+            Video Tour
           </div>
         )}
       </div>

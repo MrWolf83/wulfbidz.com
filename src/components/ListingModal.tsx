@@ -138,6 +138,7 @@ export function ListingModal({ listing, onClose, onShowAuth }: ListingModalProps
   };
 
   const photos = listing.photos?.map(p => p.url) || [];
+  const videos = (listing.video_urls as string[]) || [];
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
@@ -161,7 +162,7 @@ export function ListingModal({ listing, onClose, onShowAuth }: ListingModalProps
         </div>
 
         <div className="p-6 space-y-6">
-          <PhotoGrid photos={photos} />
+          <PhotoGrid photos={photos} videos={videos} />
 
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-4">

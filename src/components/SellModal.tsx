@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Upload, ChevronRight, ChevronLeft } from 'lucide-react';
+import { X, Upload, ChevronRight, ChevronLeft, Video } from 'lucide-react';
 import { FieldLabel } from './ui/FieldLabel';
 import { YEARS, MAKES_MODELS, US_STATES, TRANSMISSIONS, CONDITIONS, SPECIALTY_TRIMS, getTrimsForVehicle } from '../data/constants';
 import { supabase } from '../lib/supabase';
@@ -31,6 +31,7 @@ export function SellModal({ onClose }: SellModalProps) {
   });
 
   const [photos, setPhotos] = useState<string[]>([]);
+  const [videos, setVideos] = useState<string[]>([]);
 
   const updateField = (field: string, value: string | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -57,6 +58,43 @@ export function SellModal({ onClose }: SellModalProps) {
 
   const removePhoto = (index: number) => {
     setPhotos((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('video/')) {
+      alert('Please select a valid video file');
+      return;
+    }
+
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+
+    video.onloadedmetadata = () => {
+      window.URL.revokeObjectURL(video.src);
+
+      if (video.duration > 30) {
+        alert('Video must be 30 seconds or less');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setVideos((prev) => {
+          if (prev.length >= 2) return prev;
+          return [...prev, reader.result as string];
+        });
+      };
+      reader.readAsDataURL(file);
+    };
+
+    video.src = URL.createObjectURL(file);
+  };
+
+  const removeVideo = (index: number) => {
+    setVideos((prev) => prev.filter((_, i) => i !== index));
   };
 
   const canProceedToStep2 = () => {
@@ -128,6 +166,7 @@ export function SellModal({ onClose }: SellModalProps) {
         location_city: formData.city,
         location_state: formData.state,
         status: 'active',
+        video_urls: videos,
       })
       .select()
       .single();
@@ -399,6 +438,46 @@ export function SellModal({ onClose }: SellModalProps) {
                         accept="image/*"
                         multiple
                         onChange={handlePhotoUpload}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <FieldLabel>Videos (Optional)</FieldLabel>
+                <p className="text-xs text-gray-500 mb-3">Upload up to 2 videos, max 30 seconds each ({videos.length}/2)</p>
+
+                <div className="grid grid-cols-4 gap-3 mb-3">
+                  {videos.map((video, index) => (
+                    <div key={index} className="relative aspect-square">
+                      <video
+                        src={video}
+                        className="w-full h-full object-cover rounded-lg"
+                        controls
+                      />
+                      <button
+                        onClick={() => removeVideo(index)}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 z-10"
+                      >
+                        <X size={16} />
+                      </button>
+                      <div className="absolute bottom-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-xs flex items-center gap-1">
+                        <Video size={12} />
+                        Video {index + 1}
+                      </div>
+                    </div>
+                  ))}
+                  {videos.length < 2 && (
+                    <label className="aspect-square border-2 border-dashed border-blue-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors">
+                      <Video size={24} className="text-blue-400 mb-1" />
+                      <span className="text-xs text-blue-600 font-medium">Add Video</span>
+                      <span className="text-xs text-gray-400">Max 30s</span>
+                      <input
+                        type="file"
+                        accept="video/*"
+                        onChange={handleVideoUpload}
                         className="hidden"
                       />
                     </label>
