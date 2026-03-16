@@ -72,13 +72,20 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
   const handleSignIn = async () => {
     setIsSubmitting(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email: formData.email,
       password: formData.password,
     });
 
     if (error) {
       alert('Failed to sign in: ' + error.message);
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (data.user && !data.user.email_confirmed_at) {
+      alert('Please verify your email address before signing in. Check your inbox (and spam folder) for the verification link.');
+      await supabase.auth.signOut();
       setIsSubmitting(false);
       return;
     }
@@ -161,7 +168,12 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
     localStorage.setItem('revbid_last_email', formData.email);
     localStorage.setItem('revbid_last_username', formData.username);
 
-    alert('Account created successfully! Please check your email to verify your account.');
+    if (authData.user && !authData.user.email_confirmed_at) {
+      alert('Account created successfully! Please check your email inbox (and spam folder) for a verification link. You must verify your email before you can place bids.');
+    } else {
+      alert('Account created successfully!');
+    }
+
     setIsSubmitting(false);
     onClose();
   };
