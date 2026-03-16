@@ -31,6 +31,9 @@ export default function App() {
     loadListings();
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setShowProfileModal(true);
+      }
       setCurrentUser(session?.user ? { id: session.user.id, email: session.user.email || '' } : null);
     });
 
