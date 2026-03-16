@@ -79,14 +79,13 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
     });
 
     if (error) {
-      alert('Failed to sign in: ' + error.message);
-      setIsSubmitting(false);
-      return;
-    }
-
-    if (data.user && !data.user.email_confirmed_at) {
-      alert('Please verify your email address before signing in. Check your inbox (and spam folder) for the verification link.');
-      await supabase.auth.signOut();
+      if (error.message.includes('Invalid login credentials')) {
+        alert('Incorrect email or password. If you forgot your password, click "Forgot your password?" below.');
+      } else if (error.message.includes('Email not confirmed')) {
+        alert('Please verify your email address before signing in. Check your inbox (and spam folder) for the verification link.');
+      } else {
+        alert('Failed to sign in: ' + error.message);
+      }
       setIsSubmitting(false);
       return;
     }
