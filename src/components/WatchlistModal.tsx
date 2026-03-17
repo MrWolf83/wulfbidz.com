@@ -34,37 +34,59 @@ export function WatchlistModal({ isOpen, onClose, userId, onViewListing }: Watch
 
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data: watchlistData, error: watchlistError } = await supabase
         .from('watchlist')
-        .select(`
-          id,
-          listing_id,
-          created_at,
-          listings (
-            id,
-            title,
-            year,
-            make,
-            model,
-            trim,
-            mileage,
-            location_city,
-            location_state,
-            current_bid,
-            buy_now_price,
-            auction_end,
-            photos,
-            video_urls,
-            lot_number,
-            status
-          )
-        `)
+        .select('id, listing_id, created_at')
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (watchlistError) throw watchlistError;
 
-      const items = (data || []).filter(item => item.listings) as WatchlistItem[];
+      if (!watchlistData || watchlistData.length === 0) {
+        setWatchlistItems([]);
+        setWatchlistIds(new Set());
+        setLoading(false);
+        return;
+      }
+
+      const listingIds = watchlistData.map(w => w.listing_id);
+
+      const { data: listingsData, error: listingsError } = await supabase
+        .from('listings')
+        .select(`
+          id,
+          title,
+          year,
+          make,
+          model,
+          trim,
+          mileage,
+          location_city,
+          location_state,
+          current_bid,
+          buy_now_price,
+          auction_end,
+          video_urls,
+          lot_number,
+          status,
+          seller_id,
+          photos(*)
+        `)
+        .in('id', listingIds);
+
+      if (listingsError) throw listingsError;
+
+      const listingsMap = new Map(listingsData?.map(l => [l.id, l]) || []);
+
+      const items = watchlistData
+        .map(w => ({
+          id: w.id,
+          listing_id: w.listing_id,
+          created_at: w.created_at,
+          listings: listingsMap.get(w.listing_id)
+        }))
+        .filter(item => item.listings) as WatchlistItem[];
+
       setWatchlistItems(items);
       setWatchlistIds(new Set(items.map(item => item.listing_id)));
     } catch (error) {
