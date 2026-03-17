@@ -18,6 +18,7 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const [showListings, setShowListings] = useState(false);
   const [allListings, setAllListings] = useState<any[]>([]);
   const [loadingListings, setLoadingListings] = useState(false);
+  const [selectedListings, setSelectedListings] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (isOpen) {
@@ -316,6 +317,11 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       if (listingError) throw listingError;
 
       setMessage('✅ Listing deleted successfully');
+      setSelectedListings(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(listingId);
+        return newSet;
+      });
       await loadAllListings();
     } catch (error: any) {
       setMessage(`❌ Error deleting listing: ${error.message}`);
@@ -324,9 +330,74 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     }
   };
 
+  const deleteSelectedListings = async () => {
+    if (selectedListings.size === 0) {
+      setMessage('❌ No listings selected');
+      return;
+    }
+
+    if (!confirm(`Are you sure you want to permanently delete ${selectedListings.size} listing(s)? This action cannot be undone.`)) {
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      let successCount = 0;
+      let errorCount = 0;
+
+      for (const listingId of selectedListings) {
+        try {
+          await supabase.from('bids').delete().eq('listing_id', listingId);
+          await supabase.from('photos').delete().eq('listing_id', listingId);
+          const { error } = await supabase.from('listings').delete().eq('id', listingId);
+
+          if (error) throw error;
+          successCount++;
+        } catch (error) {
+          errorCount++;
+          console.error(`Error deleting listing ${listingId}:`, error);
+        }
+      }
+
+      setSelectedListings(new Set());
+      await loadAllListings();
+
+      if (errorCount > 0) {
+        setMessage(`⚠️ Deleted ${successCount} listing(s), ${errorCount} failed`);
+      } else {
+        setMessage(`✅ Successfully deleted ${successCount} listing(s)`);
+      }
+    } catch (error: any) {
+      setMessage(`❌ Error: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const toggleListingSelection = (listingId: string) => {
+    setSelectedListings(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(listingId)) {
+        newSet.delete(listingId);
+      } else {
+        newSet.add(listingId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedListings.size === allListings.length) {
+      setSelectedListings(new Set());
+    } else {
+      setSelectedListings(new Set(allListings.map(l => l.id)));
+    }
+  };
+
   const toggleListingsView = async () => {
     if (!showListings) {
       await loadAllListings();
+      setSelectedListings(new Set());
     }
     setShowListings(!showListings);
   };
@@ -494,32 +565,63 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
               ) : allListings.length === 0 ? (
                 <p className="text-gray-400 text-sm">No listings found</p>
               ) : (
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {allListings.map((listing) => (
-                    <div key={listing.id} className="bg-gray-900/50 p-3 rounded flex items-center justify-between gap-3">
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-semibold text-white truncate">
-                          {listing.year} {listing.make} {listing.model} {listing.trim}
-                        </div>
-                        <div className="text-xs text-gray-400">
-                          Lot #{listing.lot_number} • Seller: {listing.profiles?.username || 'Unknown'}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          Current Bid: ${listing.current_bid?.toLocaleString() || '0'} •
-                          Status: <span className={listing.status === 'active' ? 'text-green-400' : 'text-gray-400'}>{listing.status}</span>
-                        </div>
-                      </div>
+                <>
+                  <div className="flex items-center justify-between mb-3 pb-3 border-b border-gray-700">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedListings.size === allListings.length && allListings.length > 0}
+                        onChange={toggleSelectAll}
+                        className="w-4 h-4 rounded border-gray-600 text-orange-600 focus:ring-orange-500 focus:ring-offset-gray-900"
+                      />
+                      <span className="text-sm text-gray-300">
+                        Select All {selectedListings.size > 0 && `(${selectedListings.size} selected)`}
+                      </span>
+                    </label>
+                    {selectedListings.size > 0 && (
                       <button
-                        onClick={() => deleteListing(listing.id)}
+                        onClick={deleteSelectedListings}
                         disabled={isLoading}
-                        className="flex-shrink-0 bg-red-600 hover:bg-red-700 text-white p-2 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        title="Delete this listing"
+                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm font-semibold"
                       >
                         <Trash2 className="w-4 h-4" />
+                        Delete Selected ({selectedListings.size})
                       </button>
-                    </div>
-                  ))}
-                </div>
+                    )}
+                  </div>
+                  <div className="space-y-2 max-h-96 overflow-y-auto">
+                    {allListings.map((listing) => (
+                      <div key={listing.id} className="bg-gray-900/50 p-3 rounded flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          checked={selectedListings.has(listing.id)}
+                          onChange={() => toggleListingSelection(listing.id)}
+                          className="w-4 h-4 rounded border-gray-600 text-orange-600 focus:ring-orange-500 focus:ring-offset-gray-900"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-semibold text-white truncate">
+                            {listing.year} {listing.make} {listing.model} {listing.trim}
+                          </div>
+                          <div className="text-xs text-gray-400">
+                            Lot #{listing.lot_number} • Seller: {listing.profiles?.username || 'Unknown'}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            Current Bid: ${listing.current_bid?.toLocaleString() || '0'} •
+                            Status: <span className={listing.status === 'active' ? 'text-green-400' : 'text-gray-400'}>{listing.status}</span>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => deleteListing(listing.id)}
+                          disabled={isLoading}
+                          className="flex-shrink-0 bg-red-600 hover:bg-red-700 text-white p-2 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Delete this listing"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </>
               )}
             </div>
           )}
