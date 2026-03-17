@@ -120,15 +120,10 @@ export function ProfileModal({ onClose, initialMode }: ProfileModalProps) {
   };
 
   const canCompleteSignup = () => {
-    return idFront && idBack;
+    return true;
   };
 
   const handleSignUp = async () => {
-    if (!idFront || !idBack) {
-      alert('Please upload both front and back of your license to complete registration.');
-      return;
-    }
-
     setIsSubmitting(true);
 
     const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -502,30 +497,30 @@ export function ProfileModal({ onClose, initialMode }: ProfileModalProps) {
 
               {step === 3 && (
                 <div className="space-y-4">
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                     <div className="flex gap-3">
-                      <Shield className="text-red-600 flex-shrink-0" size={24} />
+                      <Shield className="text-blue-600 flex-shrink-0" size={24} />
                       <div>
-                        <h4 className="font-semibold text-red-900 mb-2">Required: ID Verification</h4>
-                        <p className="text-sm text-red-800 mb-2">
-                          To maintain trust and safety in our marketplace, driver's license verification is required for all users.
+                        <h4 className="font-semibold text-blue-900 mb-2">Optional: ID Verification</h4>
+                        <p className="text-sm text-blue-800 mb-2">
+                          Uploading your driver's license helps build trust in our marketplace and may be required for certain high-value transactions.
                         </p>
-                        <ul className="text-sm text-red-700 space-y-1">
+                        <ul className="text-sm text-blue-700 space-y-1">
                           <li>• Your ID photos are encrypted and stored securely</li>
                           <li>• Only verified staff can access verification documents</li>
-                          <li>• Both front and back of license are required to complete registration</li>
+                          <li>• You can skip this step and add it later in your profile settings</li>
                         </ul>
                       </div>
                     </div>
                   </div>
 
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    Driver's License Photos <span className="text-red-500">*</span>
+                    Driver's License Photos (Optional)
                   </h3>
 
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                      <FieldLabel required>Front of License</FieldLabel>
+                      <FieldLabel>Front of License</FieldLabel>
                       {idFront ? (
                         <div className="relative">
                           <img
@@ -541,9 +536,9 @@ export function ProfileModal({ onClose, initialMode }: ProfileModalProps) {
                           </button>
                         </div>
                       ) : (
-                        <label className="w-full h-48 border-2 border-dashed border-red-400 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-red-500 hover:bg-red-50 transition-colors">
-                          <Upload size={32} className="text-red-400 mb-2" />
-                          <span className="text-sm text-red-600 font-semibold">Upload Front (Required)</span>
+                        <label className="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors">
+                          <Upload size={32} className="text-gray-400 mb-2" />
+                          <span className="text-sm text-gray-600">Upload Front (Optional)</span>
                           <input
                             type="file"
                             accept="image/*"
@@ -555,7 +550,7 @@ export function ProfileModal({ onClose, initialMode }: ProfileModalProps) {
                     </div>
 
                     <div>
-                      <FieldLabel required>Back of License</FieldLabel>
+                      <FieldLabel>Back of License</FieldLabel>
                       {idBack ? (
                         <div className="relative">
                           <img
@@ -571,9 +566,9 @@ export function ProfileModal({ onClose, initialMode }: ProfileModalProps) {
                           </button>
                         </div>
                       ) : (
-                        <label className="w-full h-48 border-2 border-dashed border-red-400 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-red-500 hover:bg-red-50 transition-colors">
-                          <Upload size={32} className="text-red-400 mb-2" />
-                          <span className="text-sm text-red-600 font-semibold">Upload Back (Required)</span>
+                        <label className="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors">
+                          <Upload size={32} className="text-gray-400 mb-2" />
+                          <span className="text-sm text-gray-600">Upload Back (Optional)</span>
                           <input
                             type="file"
                             accept="image/*"
@@ -584,15 +579,6 @@ export function ProfileModal({ onClose, initialMode }: ProfileModalProps) {
                       )}
                     </div>
                   </div>
-
-                  {(!idFront || !idBack) && (
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mt-4">
-                      <p className="text-sm text-yellow-800">
-                        <Lock className="inline mr-1" size={16} />
-                        You must upload both front and back of your driver's license to complete registration.
-                      </p>
-                    </div>
-                  )}
                 </div>
               )}
             </>

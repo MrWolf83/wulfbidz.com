@@ -14,13 +14,25 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const [mockUsers, setMockUsers] = useState<any[]>([]);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [totalUsers, setTotalUsers] = useState(0);
 
   useEffect(() => {
     if (isOpen) {
       loadCurrentUser();
       loadMockUsers();
+      loadTotalUsers();
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !isAdmin) return;
+
+    const interval = setInterval(() => {
+      loadTotalUsers();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [isOpen, isAdmin]);
 
   const loadCurrentUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -45,6 +57,16 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
     if (data) {
       setMockUsers(data);
+    }
+  };
+
+  const loadTotalUsers = async () => {
+    const { count } = await supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true });
+
+    if (count !== null) {
+      setTotalUsers(count);
     }
   };
 
@@ -266,17 +288,34 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-gradient-to-br from-gray-900 to-black border border-amber-500/30 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-gradient-to-r from-amber-500 to-orange-500 p-6 flex justify-between items-center">
-          <div>
-            <h2 className="text-2xl font-bold text-black">Admin Panel</h2>
-            <p className="text-sm text-black/70">Quick testing & mock data tools</p>
+        <div className="sticky top-0 bg-gradient-to-r from-amber-500 to-orange-500 p-6">
+          <div className="flex justify-between items-start mb-4">
+            <div>
+              <h2 className="text-2xl font-bold text-black">Admin Panel</h2>
+              <p className="text-sm text-black/70">Quick testing & mock data tools</p>
+            </div>
+            <button
+              onClick={onClose}
+              className="text-black hover:text-black/70 transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            className="text-black hover:text-black/70 transition-colors"
-          >
-            <X className="w-6 h-6" />
-          </button>
+
+          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                  <Users className="w-6 h-6 text-black" />
+                </div>
+                <div>
+                  <p className="text-sm text-black/70 font-medium">Total Registered Users</p>
+                  <p className="text-3xl font-bold text-black">{totalUsers.toLocaleString()}</p>
+                </div>
+              </div>
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+            </div>
+          </div>
         </div>
 
         <div className="p-6 space-y-6">

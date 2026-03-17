@@ -32,7 +32,7 @@ export function PhotoGrid({ photos, videos = [] }: PhotoGridProps) {
 
   return (
     <div className="space-y-3">
-      <div className="relative w-full h-96 bg-gray-900 rounded-lg overflow-hidden group">
+      <div className="relative w-full bg-gray-900 rounded-lg overflow-hidden group" style={{ aspectRatio: '16/9' }}>
         {isVideo(currentIndex) ? (
           <video
             src={allMedia[currentIndex]}
