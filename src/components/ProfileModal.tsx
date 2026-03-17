@@ -4,6 +4,7 @@ import { FieldLabel } from './ui/FieldLabel';
 import { US_STATES } from '../data/constants';
 import { supabase } from '../lib/supabase';
 import { PasswordResetModal } from './PasswordResetModal';
+import { TwoFactorSettings } from './TwoFactorSettings';
 
 interface ProfileModalProps {
   onClose: () => void;
@@ -18,6 +19,8 @@ export function ProfileModal({ onClose, initialMode }: ProfileModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
   const [returningUser, setReturningUser] = useState<{ email: string; username: string } | null>(null);
+  const [showTwoFactorSettings, setShowTwoFactorSettings] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -43,6 +46,7 @@ export function ProfileModal({ onClose, initialMode }: ProfileModalProps) {
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
       setMode('signin');
+      setCurrentUserId(session.user.id);
     } else {
       const savedEmail = localStorage.getItem('revbid_last_email');
       const savedUsername = localStorage.getItem('revbid_last_username');
@@ -328,6 +332,22 @@ export function ProfileModal({ onClose, initialMode }: ProfileModalProps) {
                   </button>
                 </p>
               </div>
+
+              {currentUserId && (
+                <div className="mt-6 pt-6 border-t border-gray-200">
+                  <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <Shield size={18} className="text-red-600" />
+                    Account Security
+                  </h4>
+                  <button
+                    onClick={() => setShowTwoFactorSettings(true)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-between"
+                  >
+                    <span className="text-sm font-medium text-gray-700">Two-Factor Authentication</span>
+                    <ChevronRight size={18} className="text-gray-400" />
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <>
@@ -617,6 +637,13 @@ export function ProfileModal({ onClose, initialMode }: ProfileModalProps) {
           </div>
         )}
       </div>
+
+      {showTwoFactorSettings && currentUserId && (
+        <TwoFactorSettings
+          userId={currentUserId}
+          onClose={() => setShowTwoFactorSettings(false)}
+        />
+      )}
     </div>
   );
 }

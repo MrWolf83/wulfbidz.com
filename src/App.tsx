@@ -8,6 +8,7 @@ import { ProfileModal } from './components/ProfileModal';
 import { BuyerSearchModal } from './components/BuyerSearchModal';
 import MyListingsModal from './components/MyListingsModal';
 import AdminPanel from './components/AdminPanel';
+import { TwoFactorModal } from './components/TwoFactorModal';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<{ id: string; email: string } | null>(null);
@@ -25,6 +26,8 @@ export default function App() {
   const [showFees, setShowFees] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
+  const [showTwoFactorModal, setShowTwoFactorModal] = useState(false);
+  const [pendingUserId, setPendingUserId] = useState<string | null>(null);
 
   useEffect(() => {
     updateMetaTags();
@@ -32,11 +35,30 @@ export default function App() {
     loadListings();
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'PASSWORD_RECOVERY') {
-        setIsPasswordRecovery(true);
-        setShowProfileModal(true);
-      }
-      setCurrentUser(session?.user ? { id: session.user.id, email: session.user.email || '' } : null);
+      (async () => {
+        if (event === 'PASSWORD_RECOVERY') {
+          setIsPasswordRecovery(true);
+          setShowProfileModal(true);
+        }
+
+        if (event === 'SIGNED_IN' && session?.user) {
+          const { data: twoFactorSettings } = await supabase
+            .from('user_two_factor_settings')
+            .select('is_enabled')
+            .eq('user_id', session.user.id)
+            .maybeSingle();
+
+          if (twoFactorSettings?.is_enabled) {
+            setPendingUserId(session.user.id);
+            setShowTwoFactorModal(true);
+            await supabase.auth.signOut();
+          } else {
+            setCurrentUser({ id: session.user.id, email: session.user.email || '' });
+          }
+        } else {
+          setCurrentUser(session?.user ? { id: session.user.id, email: session.user.email || '' } : null);
+        }
+      })();
     });
 
     return () => {
@@ -554,6 +576,25 @@ export default function App() {
         <AdminPanel
           isOpen={showAdminPanel}
           onClose={() => setShowAdminPanel(false)}
+        />
+      )}
+
+      {showTwoFactorModal && pendingUserId && (
+        <TwoFactorModal
+          userId={pendingUserId}
+          onVerified={async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+              setCurrentUser({ id: user.id, email: user.email || '' });
+            }
+            setShowTwoFactorModal(false);
+            setPendingUserId(null);
+          }}
+          onCancel={async () => {
+            await supabase.auth.signOut();
+            setShowTwoFactorModal(false);
+            setPendingUserId(null);
+          }}
         />
       )}
     </div>
