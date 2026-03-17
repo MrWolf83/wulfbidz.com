@@ -397,21 +397,25 @@ export function SellModal({ onClose }: SellModalProps) {
 
               <div>
                 <FieldLabel required>Description</FieldLabel>
-                <p className="text-xs text-gray-500 mb-2">
-                  Minimum 50 characters ({formData.description.length}/50)
+                <p className={`text-xs mb-2 ${formData.description.length >= 50 ? 'text-green-600 font-medium' : 'text-gray-500'}`}>
+                  {formData.description.length >= 50 ? '✓ ' : ''}Minimum 50 characters ({formData.description.length}/50)
                 </p>
                 <textarea
                   value={formData.description}
                   onChange={(e) => updateField('description', e.target.value)}
                   rows={6}
                   placeholder="Describe the vehicle's condition, features, history, and any issues..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none ${
+                    formData.description.length >= 50 ? 'border-green-500' : 'border-gray-300'
+                  }`}
                 />
               </div>
 
               <div>
                 <FieldLabel required>Photos</FieldLabel>
-                <p className="text-xs text-gray-500 mb-3">Upload 1-6 photos ({photos.length}/6)</p>
+                <p className={`text-xs mb-3 ${photos.length >= 1 ? 'text-green-600 font-medium' : 'text-gray-500'}`}>
+                  {photos.length >= 1 ? '✓ ' : ''}Upload 1-6 photos ({photos.length}/6)
+                </p>
 
                 <div className="grid grid-cols-4 gap-3 mb-3">
                   {photos.map((photo, index) => (
@@ -603,14 +607,25 @@ export function SellModal({ onClose }: SellModalProps) {
           </button>
 
           {step < 3 ? (
-            <button
-              onClick={() => setStep((s) => s + 1)}
-              disabled={(step === 1 && !canProceedToStep2()) || (step === 2 && !canProceedToStep3())}
-              className="flex items-center gap-2 px-6 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Next
-              <ChevronRight size={20} />
-            </button>
+            <div className="flex flex-col items-end gap-1">
+              {step === 2 && !canProceedToStep3() && (
+                <p className="text-xs text-red-600 font-medium">
+                  {formData.description.length < 50 && photos.length < 1
+                    ? 'Add description (50+ chars) and at least 1 photo'
+                    : formData.description.length < 50
+                    ? 'Description must be at least 50 characters'
+                    : 'Add at least 1 photo'}
+                </p>
+              )}
+              <button
+                onClick={() => setStep((s) => s + 1)}
+                disabled={(step === 1 && !canProceedToStep2()) || (step === 2 && !canProceedToStep3())}
+                className="flex items-center gap-2 px-6 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+                <ChevronRight size={20} />
+              </button>
+            </div>
           ) : (
             <button
               onClick={handleSubmit}
