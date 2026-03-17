@@ -7,12 +7,13 @@ import { PasswordResetModal } from './PasswordResetModal';
 
 interface ProfileModalProps {
   onClose: () => void;
+  initialMode?: 'reset-password';
 }
 
-type AuthMode = 'signin' | 'signup' | 'reset';
+type AuthMode = 'signin' | 'signup' | 'reset' | 'reset-password';
 
-export function ProfileModal({ onClose }: ProfileModalProps) {
-  const [mode, setMode] = useState<AuthMode>('signin');
+export function ProfileModal({ onClose, initialMode }: ProfileModalProps) {
+  const [mode, setMode] = useState<AuthMode>(initialMode || 'signin');
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
@@ -182,11 +183,12 @@ export function ProfileModal({ onClose }: ProfileModalProps) {
     return null;
   }
 
-  if (mode === 'reset') {
+  if (mode === 'reset' || mode === 'reset-password') {
     return (
       <PasswordResetModal
         onClose={onClose}
         onBackToSignIn={() => setMode('signin')}
+        initialStep={mode === 'reset-password' ? 'update' : 'request'}
       />
     );
   }

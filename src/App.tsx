@@ -24,6 +24,7 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showFees, setShowFees] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
 
   useEffect(() => {
     updateMetaTags();
@@ -32,6 +33,7 @@ export default function App() {
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'PASSWORD_RECOVERY') {
+        setIsPasswordRecovery(true);
         setShowProfileModal(true);
       }
       setCurrentUser(session?.user ? { id: session.user.id, email: session.user.email || '' } : null);
@@ -535,8 +537,10 @@ export default function App() {
         <ProfileModal
           onClose={() => {
             setShowProfileModal(false);
+            setIsPasswordRecovery(false);
             checkAuth();
           }}
+          initialMode={isPasswordRecovery ? 'reset-password' : undefined}
         />
       )}
 

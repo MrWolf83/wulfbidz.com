@@ -6,12 +6,13 @@ import { FieldLabel } from './ui/FieldLabel';
 interface PasswordResetModalProps {
   onClose: () => void;
   onBackToSignIn: () => void;
+  initialStep?: ResetStep;
 }
 
 type ResetStep = 'request' | 'sent' | 'update';
 
-export function PasswordResetModal({ onClose, onBackToSignIn }: PasswordResetModalProps) {
-  const [step, setStep] = useState<ResetStep>('request');
+export function PasswordResetModal({ onClose, onBackToSignIn, initialStep }: PasswordResetModalProps) {
+  const [step, setStep] = useState<ResetStep>(initialStep || 'request');
   const [email, setEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
