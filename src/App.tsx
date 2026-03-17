@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, User, LogOut, Menu, X, Car, Shield, DollarSign, Clock, List, Settings } from 'lucide-react';
+import { Plus, Search, User, LogOut, Menu, X, Car, Shield, DollarSign, Clock, List, Settings, Bell } from 'lucide-react';
 import { supabase, type Listing } from './lib/supabase';
 import { CarCard } from './components/CarCard';
 import { ListingModal } from './components/ListingModal';
@@ -9,6 +9,7 @@ import { BuyerSearchModal } from './components/BuyerSearchModal';
 import MyListingsModal from './components/MyListingsModal';
 import AdminPanel from './components/AdminPanel';
 import { TwoFactorModal } from './components/TwoFactorModal';
+import NotificationsModal from './components/NotificationsModal';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<{ id: string; email: string } | null>(null);
@@ -28,6 +29,8 @@ export default function App() {
   const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
   const [showTwoFactorModal, setShowTwoFactorModal] = useState(false);
   const [pendingUserId, setPendingUserId] = useState<string | null>(null);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
 
   useEffect(() => {
     updateMetaTags();
@@ -65,6 +68,51 @@ export default function App() {
       authListener?.subscription.unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    if (currentUser) {
+      loadUnreadNotificationCount();
+      subscribeToNotifications();
+    }
+  }, [currentUser]);
+
+  const loadUnreadNotificationCount = async () => {
+    if (!currentUser) return;
+
+    try {
+      const { count, error } = await supabase
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_read', false);
+
+      if (error) throw error;
+      setUnreadNotificationCount(count || 0);
+    } catch (error) {
+      console.error('Error loading notification count:', error);
+    }
+  };
+
+  const subscribeToNotifications = () => {
+    const channel = supabase
+      .channel('user_notifications')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${currentUser?.id}`,
+        },
+        () => {
+          loadUnreadNotificationCount();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  };
 
   const updateMetaTags = () => {
     document.title = 'WulfBidz - Verified Car Auctions & Live Bidding | wulfbidz.com';
@@ -185,6 +233,18 @@ export default function App() {
             <div className="flex items-center gap-4">
               {currentUser ? (
                 <>
+                  <button
+                    onClick={() => setShowNotifications(true)}
+                    className="relative p-2 hover:bg-gray-800 rounded-lg transition-colors text-gray-300 hover:text-white"
+                    title="Notifications"
+                  >
+                    <Bell size={20} />
+                    {unreadNotificationCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                        {unreadNotificationCount > 9 ? '9+' : unreadNotificationCount}
+                      </span>
+                    )}
+                  </button>
                   {isAdmin && (
                     <button
                       onClick={() => setShowAdminPanel(true)}
@@ -595,6 +655,13 @@ export default function App() {
             setShowTwoFactorModal(false);
             setPendingUserId(null);
           }}
+        />
+      )}
+
+      {showNotifications && (
+        <NotificationsModal
+          isOpen={showNotifications}
+          onClose={() => setShowNotifications(false)}
         />
       )}
     </div>
