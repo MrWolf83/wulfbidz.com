@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Plus, Users, Car, Zap, Trash2 } from 'lucide-react';
+import { X, Plus, Users, Car, Zap, Trash2, List } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { getRandomMockCar, getRandomUsername, generateRandomBidAmount } from '../utils/mockData';
 
@@ -15,6 +15,9 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [totalUsers, setTotalUsers] = useState(0);
+  const [showListings, setShowListings] = useState(false);
+  const [allListings, setAllListings] = useState<any[]>([]);
+  const [loadingListings, setLoadingListings] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -263,6 +266,71 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     }
   };
 
+  const loadAllListings = async () => {
+    setLoadingListings(true);
+    try {
+      const { data } = await supabase
+        .from('listings')
+        .select(`
+          *,
+          profiles:seller_id (username)
+        `)
+        .order('created_at', { ascending: false });
+
+      if (data) {
+        setAllListings(data);
+      }
+    } catch (error: any) {
+      setMessage(`❌ Error loading listings: ${error.message}`);
+    } finally {
+      setLoadingListings(false);
+    }
+  };
+
+  const deleteListing = async (listingId: string) => {
+    if (!confirm('Are you sure you want to permanently delete this listing? This action cannot be undone.')) {
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { error: bidsError } = await supabase
+        .from('bids')
+        .delete()
+        .eq('listing_id', listingId);
+
+      if (bidsError) throw bidsError;
+
+      const { error: photosError } = await supabase
+        .from('photos')
+        .delete()
+        .eq('listing_id', listingId);
+
+      if (photosError) throw photosError;
+
+      const { error: listingError } = await supabase
+        .from('listings')
+        .delete()
+        .eq('id', listingId);
+
+      if (listingError) throw listingError;
+
+      setMessage('✅ Listing deleted successfully');
+      await loadAllListings();
+    } catch (error: any) {
+      setMessage(`❌ Error deleting listing: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const toggleListingsView = async () => {
+    if (!showListings) {
+      await loadAllListings();
+    }
+    setShowListings(!showListings);
+  };
+
   if (!isOpen) return null;
 
   if (!isAdmin) {
@@ -363,6 +431,18 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             </button>
 
             <button
+              onClick={toggleListingsView}
+              disabled={isLoading}
+              className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white p-6 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex flex-col items-center gap-3"
+            >
+              <List className="w-8 h-8" />
+              <div>
+                <div className="font-bold">Manage All Listings</div>
+                <div className="text-sm text-orange-200">View & remove vehicles</div>
+              </div>
+            </button>
+
+            <button
               onClick={clearMockData}
               disabled={isLoading}
               className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white p-6 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex flex-col items-center gap-3"
@@ -393,6 +473,56 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
               </div>
             )}
           </div>
+
+          {showListings && (
+            <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <List className="w-5 h-5 text-orange-500" />
+                  <h3 className="font-bold text-white">All Platform Listings ({allListings.length})</h3>
+                </div>
+                <button
+                  onClick={() => setShowListings(false)}
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {loadingListings ? (
+                <p className="text-gray-400 text-sm text-center py-4">Loading listings...</p>
+              ) : allListings.length === 0 ? (
+                <p className="text-gray-400 text-sm">No listings found</p>
+              ) : (
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                  {allListings.map((listing) => (
+                    <div key={listing.id} className="bg-gray-900/50 p-3 rounded flex items-center justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-semibold text-white truncate">
+                          {listing.year} {listing.make} {listing.model} {listing.trim}
+                        </div>
+                        <div className="text-xs text-gray-400">
+                          Lot #{listing.lot_number} • Seller: {listing.profiles?.username || 'Unknown'}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          Current Bid: ${listing.current_bid?.toLocaleString() || '0'} •
+                          Status: <span className={listing.status === 'active' ? 'text-green-400' : 'text-gray-400'}>{listing.status}</span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => deleteListing(listing.id)}
+                        disabled={isLoading}
+                        className="flex-shrink-0 bg-red-600 hover:bg-red-700 text-white p-2 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Delete this listing"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4">
             <h3 className="font-bold text-amber-500 mb-2 flex items-center gap-2">
