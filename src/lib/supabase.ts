@@ -59,6 +59,8 @@ export interface Bid {
   bidder_id: string;
   amount: number;
   created_at: string;
+  is_retracted: boolean;
+  retracted_at?: string;
   bidder?: Profile;
 }
 

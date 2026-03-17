@@ -72,6 +72,7 @@ export function ListingModal({ listing, onClose, onShowAuth }: ListingModalProps
         bidder:profiles(username, photo_url)
       `)
       .eq('listing_id', listing.id)
+      .eq('is_retracted', false)
       .order('created_at', { ascending: false })
       .limit(10);
 
@@ -145,6 +146,48 @@ export function ListingModal({ listing, onClose, onShowAuth }: ListingModalProps
     if (confirmed) {
       alert('Buy Now feature will be integrated with payment processing');
     }
+  };
+
+  const handleRetractBid = async (bidId: string, bidAmount: number) => {
+    if (!currentUser) return;
+
+    const confirmed = confirm(
+      `Are you sure you want to retract your bid of $${bidAmount.toLocaleString()}? This action cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
+    const { error: retractError } = await supabase
+      .from('bids')
+      .update({
+        is_retracted: true,
+        retracted_at: new Date().toISOString(),
+      })
+      .eq('id', bidId);
+
+    if (retractError) {
+      alert('Failed to retract bid. Please try again.');
+      return;
+    }
+
+    const { data: activeBids } = await supabase
+      .from('bids')
+      .select('amount')
+      .eq('listing_id', listing.id)
+      .eq('is_retracted', false)
+      .order('amount', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const newCurrentBid = activeBids?.amount || listing.starting_bid;
+
+    await supabase
+      .from('listings')
+      .update({ current_bid: newCurrentBid })
+      .eq('id', listing.id);
+
+    alert('Bid retracted successfully');
+    loadBids();
   };
 
   const photos = listing.photos?.map(p => p.url) || [];
@@ -251,12 +294,15 @@ export function ListingModal({ listing, onClose, onShowAuth }: ListingModalProps
                               className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                             />
                             <input
-                              type="number"
-                              value={bidAmount}
-                              onChange={(e) => setBidAmount(Number(e.target.value))}
+                              type="text"
+                              value={bidAmount.toLocaleString()}
+                              onChange={(e) => {
+                                const value = e.target.value.replace(/,/g, '');
+                                const numValue = parseInt(value) || 0;
+                                setBidAmount(numValue);
+                              }}
                               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                              step="100"
-                              min={listing.current_bid + 100}
+                              placeholder={`${(listing.current_bid + 100).toLocaleString()}`}
                             />
                           </div>
                         </div>
@@ -309,19 +355,29 @@ export function ListingModal({ listing, onClose, onShowAuth }: ListingModalProps
                         key={bid.id}
                         className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                       >
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-1">
                           <User size={16} className="text-gray-400" />
                           <span className="font-medium text-sm">
                             {bid.bidder?.username || 'Anonymous'}
                           </span>
                         </div>
-                        <div className="text-right">
-                          <p className="font-semibold text-red-600">
-                            ${bid.amount.toLocaleString()}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {new Date(bid.created_at).toLocaleString()}
-                          </p>
+                        <div className="flex items-center gap-3">
+                          <div className="text-right">
+                            <p className="font-semibold text-red-600">
+                              ${bid.amount.toLocaleString()}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {new Date(bid.created_at).toLocaleString()}
+                            </p>
+                          </div>
+                          {currentUser && currentUser.id === bid.bidder_id && (
+                            <button
+                              onClick={() => handleRetractBid(bid.id, bid.amount)}
+                              className="px-3 py-1 text-xs font-medium text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                            >
+                              Retract
+                            </button>
+                          )}
                         </div>
                       </div>
                     ))
