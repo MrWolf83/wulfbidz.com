@@ -113,14 +113,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="text-white">
-                  <path d="M12 2L8 6L6 4L4 6L6 10L4 14L6 16L8 14L12 18L16 14L18 16L20 14L18 10L20 6L18 4L16 6L12 2Z" opacity="0.9"/>
-                  <path d="M12 4L9 7L8 6L7 7L8 9L7 12L8 13L9 12L12 15L15 12L16 13L17 12L16 9L17 7L16 6L15 7L12 4Z" opacity="0.6"/>
-                  <circle cx="9" cy="8" r="0.8" fill="white"/>
-                  <circle cx="15" cy="8" r="0.8" fill="white"/>
-                </svg>
-              </div>
+              <img src="/image.png" alt="WulfBidz Logo" className="w-12 h-12 object-contain" />
               <div>
                 <h1 className="text-xl font-bold text-white tracking-wider">WULFBIDZ</h1>
                 <p className="text-xs text-red-500 -mt-1">wulfbidz.com</p>
@@ -342,14 +335,7 @@ export default function App() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
               <div>
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="text-white">
-                      <path d="M12 2L8 6L6 4L4 6L6 10L4 14L6 16L8 14L12 18L16 14L18 16L20 14L18 10L20 6L18 4L16 6L12 2Z" opacity="0.9"/>
-                      <path d="M12 4L9 7L8 6L7 7L8 9L7 12L8 13L9 12L12 15L15 12L16 13L17 12L16 9L17 7L16 6L15 7L12 4Z" opacity="0.6"/>
-                      <circle cx="9" cy="8" r="0.8" fill="white"/>
-                      <circle cx="15" cy="8" r="0.8" fill="white"/>
-                    </svg>
-                  </div>
+                  <img src="/image.png" alt="WulfBidz Logo" className="w-12 h-12 object-contain" />
                   <div>
                     <h3 className="text-xl font-bold text-white">WULFBIDZ</h3>
                     <p className="text-xs text-red-500">wulfbidz.com</p>
