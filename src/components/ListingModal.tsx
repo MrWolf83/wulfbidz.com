@@ -86,6 +86,11 @@ export function ListingModal({ listing, onClose, onShowAuth }: ListingModalProps
       return;
     }
 
+    if (currentUser.id === listing.seller_id) {
+      alert('You cannot bid on your own listing');
+      return;
+    }
+
     if (bidAmount <= listing.current_bid) {
       alert('Your bid must be higher than the current bid');
       return;
@@ -123,6 +128,11 @@ export function ListingModal({ listing, onClose, onShowAuth }: ListingModalProps
   const handleBuyNow = async () => {
     if (!currentUser) {
       setShowAuthPrompt(true);
+      return;
+    }
+
+    if (currentUser.id === listing.seller_id) {
+      alert('You cannot purchase your own listing');
       return;
     }
 
@@ -228,7 +238,7 @@ export function ListingModal({ listing, onClose, onShowAuth }: ListingModalProps
                     </p>
                   </div>
 
-                  {currentUser && (
+                  {currentUser && currentUser.id !== listing.seller_id && (
                     <div className="space-y-3">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -268,6 +278,13 @@ export function ListingModal({ listing, onClose, onShowAuth }: ListingModalProps
                           Buy Now - ${listing.buy_now_price.toLocaleString()}
                         </button>
                       )}
+                    </div>
+                  )}
+
+                  {currentUser && currentUser.id === listing.seller_id && (
+                    <div className="text-center py-6 bg-blue-50 rounded-lg">
+                      <p className="text-blue-800 font-medium text-sm">This is your listing</p>
+                      <p className="text-blue-600 text-xs mt-1">You cannot bid on your own vehicle</p>
                     </div>
                   )}
 
