@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { X, Car, AlertCircle } from 'lucide-react';
+import { X, Car, AlertCircle, CreditCard as Edit } from 'lucide-react';
 import { supabase, type Listing } from '../lib/supabase';
 import ComplaintModal from './ComplaintModal';
+import EditListingModal from './EditListingModal';
 
 interface MyListingsModalProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ export default function MyListingsModal({ isOpen, onClose }: MyListingsModalProp
   const [myListings, setMyListings] = useState<ListingWithBidder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showComplaintModal, setShowComplaintModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [selectedListing, setSelectedListing] = useState<ListingWithBidder | null>(null);
 
   useEffect(() => {
@@ -82,6 +84,17 @@ export default function MyListingsModal({ isOpen, onClose }: MyListingsModalProp
   const handleReportBuyer = (listing: ListingWithBidder) => {
     setSelectedListing(listing);
     setShowComplaintModal(true);
+  };
+
+  const handleEditListing = (listing: ListingWithBidder) => {
+    setSelectedListing(listing);
+    setShowEditModal(true);
+  };
+
+  const handleEditComplete = () => {
+    setShowEditModal(false);
+    setSelectedListing(null);
+    loadMyListings();
   };
 
   if (!isOpen) return null;
@@ -153,20 +166,25 @@ export default function MyListingsModal({ isOpen, onClose }: MyListingsModalProp
                           )}
                         </div>
 
-                        {listing.highest_bidder && (
-                          <div className="mt-4 pt-4 border-t border-gray-700">
+                        <div className="mt-4 pt-4 border-t border-gray-700 flex items-center justify-between">
+                          <button
+                            onClick={() => handleEditListing(listing)}
+                            className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors"
+                          >
+                            <Edit size={16} />
+                            <span>Edit Description & Photos</span>
+                          </button>
+
+                          {listing.highest_bidder && (
                             <button
                               onClick={() => handleReportBuyer(listing)}
                               className="flex items-center gap-2 text-sm text-red-400 hover:text-red-300 transition-colors"
                             >
                               <AlertCircle size={16} />
-                              <span>Report buyer for backing out of deal</span>
+                              <span>Report buyer for backing out</span>
                             </button>
-                            <p className="text-xs text-gray-500 mt-1 ml-6">
-                              Only submit if the buyer failed to complete the purchase
-                            </p>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -189,6 +207,18 @@ export default function MyListingsModal({ isOpen, onClose }: MyListingsModalProp
           accusedId={selectedListing.highest_bidder.id}
           accusedEmail={selectedListing.highest_bidder.email}
           complaintType="buyer_backed_out"
+        />
+      )}
+
+      {showEditModal && selectedListing && (
+        <EditListingModal
+          isOpen={showEditModal}
+          onClose={() => {
+            setShowEditModal(false);
+            setSelectedListing(null);
+          }}
+          listing={selectedListing}
+          onUpdate={handleEditComplete}
         />
       )}
     </>
