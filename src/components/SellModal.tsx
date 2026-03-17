@@ -193,6 +193,130 @@ export function SellModal({ onClose }: SellModalProps) {
   const availableModels = formData.make ? MAKES_MODELS[formData.make] || [] : [];
   const availableTrims = formData.make && formData.model ? getTrimsForVehicle(formData.make, formData.model) : [];
 
+  const getRelevantSpecialtyTrims = () => {
+    if (!formData.make || !formData.model) return [];
+
+    const makeModelLower = `${formData.make} ${formData.model}`.toLowerCase();
+
+    return SPECIALTY_TRIMS.filter(trim => {
+      const trimLower = trim.toLowerCase();
+
+      if (makeModelLower.includes('mustang')) {
+        return trimLower.includes('shelby') || trimLower.includes('saleen') ||
+               trimLower.includes('roush') || trimLower.includes('boss') ||
+               trimLower.includes('mach') || trimLower.includes('cobra') ||
+               trimLower.includes('bullitt') || trimLower.includes('california special') ||
+               trimLower.includes('king cobra') || trimLower.includes('svo');
+      }
+
+      if (makeModelLower.includes('camaro')) {
+        return trimLower.includes('yenko camaro') || trimLower.includes('z/28') ||
+               trimLower.includes('zl1') || trimLower.includes('1le') ||
+               trimLower.includes('copo') || trimLower.includes('rs/ss') ||
+               trimLower.includes('ss 396') || trimLower.includes('ss 454');
+      }
+
+      if (makeModelLower.includes('corvette')) {
+        return trimLower.includes('callaway');
+      }
+
+      if (makeModelLower.includes('chevelle')) {
+        return trimLower.includes('yenko chevelle') || trimLower.includes('ss 454') ||
+               trimLower.includes('ss 396');
+      }
+
+      if (makeModelLower.includes('nova')) {
+        return trimLower.includes('yenko nova') || trimLower.includes('ss');
+      }
+
+      if (makeModelLower.includes('challenger') || makeModelLower.includes('charger')) {
+        return trimLower.includes('hellcat') || trimLower.includes('demon') ||
+               trimLower.includes('redeye') || trimLower.includes('jailbreak') ||
+               trimLower.includes('scat pack') || trimLower.includes('r/t') ||
+               trimLower.includes('daytona') || trimLower.includes('super bee') ||
+               trimLower.includes('srt');
+      }
+
+      if (makeModelLower.includes('gto')) {
+        return trimLower.includes('gto judge');
+      }
+
+      if (makeModelLower.includes('firebird') || makeModelLower.includes('trans am')) {
+        return trimLower.includes('trans am') || trimLower.includes('ws6') ||
+               trimLower.includes('ram air');
+      }
+
+      if (makeModelLower.includes('oldsmobile') || makeModelLower.includes('442') ||
+          makeModelLower.includes('cutlass')) {
+        return trimLower.includes('hurst/olds');
+      }
+
+      if (makeModelLower.includes('f-150') || makeModelLower.includes('f-250') ||
+          makeModelLower.includes('f-350')) {
+        return trimLower.includes('raptor') || trimLower.includes('tremor') ||
+               trimLower.includes('svt lightning');
+      }
+
+      if (formData.make === 'Mercedes-Benz') {
+        return trimLower.includes('amg');
+      }
+
+      if (formData.make === 'BMW') {
+        return trimLower.includes('m sport') || trimLower.includes('m performance');
+      }
+
+      if (formData.make === 'Audi') {
+        return trimLower.includes('rs') || trimLower === 's-line';
+      }
+
+      if (formData.make === 'Volkswagen') {
+        return trimLower.includes('r-line');
+      }
+
+      if (formData.make === 'Honda' && makeModelLower.includes('civic')) {
+        return trimLower.includes('type r');
+      }
+
+      if (formData.make === 'Subaru') {
+        return trimLower.includes('sti');
+      }
+
+      if (formData.make === 'Nissan') {
+        return trimLower.includes('nismo');
+      }
+
+      if (formData.make === 'Toyota') {
+        return trimLower.includes('trd');
+      }
+
+      if (formData.make === 'Chevrolet') {
+        return trimLower.includes('ss') || trimLower.includes('redline');
+      }
+
+      if (formData.make === 'Dodge') {
+        return trimLower.includes('srt') || trimLower.includes('r/t');
+      }
+
+      if (formData.make === 'Porsche') {
+        return trimLower.includes('turbo') || trimLower.includes('gt2') ||
+               trimLower.includes('gt3') || trimLower.includes('gt4') ||
+               trimLower.includes('spyder') || trimLower.includes('targa') ||
+               trimLower.includes('carrera') || trimLower.includes('competition');
+      }
+
+      if (trimLower.includes('anniversary') || trimLower.includes('heritage') ||
+          trimLower.includes('launch') || trimLower.includes('first edition') ||
+          trimLower.includes('founders') || trimLower.includes('limited') ||
+          trimLower.includes('special edition') || trimLower.includes('commemorative')) {
+        return true;
+      }
+
+      return false;
+    });
+  };
+
+  const relevantSpecialtyTrims = getRelevantSpecialtyTrims();
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
       <div className="bg-white rounded-2xl max-w-3xl w-full my-8 shadow-2xl">
@@ -309,13 +433,15 @@ export function SellModal({ onClose }: SellModalProps) {
                         ))}
                       </optgroup>
                     )}
-                    <optgroup label="Exotic & Performance Editions">
-                      {SPECIALTY_TRIMS.map((trim) => (
-                        <option key={trim} value={trim}>
-                          {trim}
-                        </option>
-                      ))}
-                    </optgroup>
+                    {relevantSpecialtyTrims.length > 0 && (
+                      <optgroup label="Performance & Special Editions">
+                        {relevantSpecialtyTrims.map((trim) => (
+                          <option key={trim} value={trim}>
+                            {trim}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
                     <optgroup label="Custom">
                       <option value="CUSTOM">Other (Enter Custom)</option>
                     </optgroup>
