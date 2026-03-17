@@ -195,27 +195,30 @@ export function ListingModal({ listing, onClose, onShowAuth }: ListingModalProps
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl max-w-5xl w-full my-8 shadow-2xl">
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">
-              {listing.year} {listing.make} {listing.model}
-            </h2>
-            <div className="flex items-center gap-2 mt-1">
-              <Hash size={14} className="text-gray-400" />
-              <span className="text-sm text-gray-500 font-medium">LOT {listing.lot_number}</span>
-            </div>
-          </div>
+      <div className="bg-white rounded-2xl max-w-6xl w-full my-8 shadow-2xl max-h-[95vh] overflow-y-auto">
+        <div className="sticky top-0 bg-white px-6 py-4 flex items-center justify-between rounded-t-2xl z-10 border-b border-gray-200">
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors ml-auto"
           >
             <X size={24} />
           </button>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="px-6 pb-6">
           <PhotoGrid photos={photos} videos={videos} />
+        </div>
+
+        <div className="px-6 pb-6">
+          <div className="mb-4">
+            <h2 className="text-3xl font-bold text-gray-900">
+              {listing.year} {listing.make} {listing.model}
+            </h2>
+            <div className="flex items-center gap-2 mt-2">
+              <Hash size={16} className="text-gray-400" />
+              <span className="text-sm text-gray-500 font-medium">LOT {listing.lot_number}</span>
+            </div>
+          </div>
 
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-4">

@@ -31,20 +31,22 @@ export function PhotoGrid({ photos, videos = [] }: PhotoGridProps) {
   };
 
   return (
-    <div className="space-y-3">
-      <div className="relative w-full bg-gray-900 rounded-lg overflow-hidden group" style={{ aspectRatio: '16/9' }}>
+    <div className="space-y-3 -mx-6">
+      <div className="relative w-full bg-gray-900 overflow-hidden group" style={{ minHeight: '500px' }}>
         {isVideo(currentIndex) ? (
           <video
             src={allMedia[currentIndex]}
             className="w-full h-full object-contain"
             controls
             autoPlay
+            style={{ maxHeight: '600px' }}
           />
         ) : (
           <img
             src={allMedia[currentIndex]}
             alt={`Photo ${currentIndex + 1}`}
             className="w-full h-full object-contain"
+            style={{ maxHeight: '600px' }}
           />
         )}
 
@@ -52,18 +54,18 @@ export function PhotoGrid({ photos, videos = [] }: PhotoGridProps) {
           <>
             <button
               onClick={prevMedia}
-              className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all opacity-0 group-hover:opacity-100"
+              className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all opacity-0 group-hover:opacity-100 z-10"
             >
-              <ChevronLeft size={24} />
+              <ChevronLeft size={28} />
             </button>
             <button
               onClick={nextMedia}
-              className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all opacity-0 group-hover:opacity-100"
+              className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all opacity-0 group-hover:opacity-100 z-10"
             >
-              <ChevronRight size={24} />
+              <ChevronRight size={28} />
             </button>
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-sm flex items-center gap-2">
-              {isVideo(currentIndex) && <Video size={14} />}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 z-10">
+              {isVideo(currentIndex) && <Video size={16} />}
               {currentIndex + 1} / {totalItems}
             </div>
           </>
@@ -71,15 +73,15 @@ export function PhotoGrid({ photos, videos = [] }: PhotoGridProps) {
       </div>
 
       {totalItems > 1 && (
-        <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="flex gap-2 overflow-x-auto pb-2 px-6 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
           {allMedia.map((media, index) => (
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
-              className={`relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+              className={`relative flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden border-2 transition-all ${
                 index === currentIndex
-                  ? 'border-red-500 scale-105'
-                  : 'border-gray-300 hover:border-gray-400'
+                  ? 'border-red-500 ring-2 ring-red-300'
+                  : 'border-gray-300 hover:border-red-400'
               }`}
             >
               {isVideo(index) ? (
@@ -89,7 +91,7 @@ export function PhotoGrid({ photos, videos = [] }: PhotoGridProps) {
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                    <Video size={20} className="text-white" />
+                    <Video size={24} className="text-white" />
                   </div>
                 </>
               ) : (
