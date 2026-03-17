@@ -113,7 +113,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <img src="/image.png" alt="WulfBidz Logo" className="w-12 h-12 object-contain" />
+              <img src="/image.png" alt="WulfBidz Logo" className="w-16 h-16 object-contain mix-blend-lighten" />
               <div>
                 <h1 className="text-xl font-bold text-white tracking-wider">WULFBIDZ</h1>
                 <p className="text-xs text-red-500 -mt-1">wulfbidz.com</p>
@@ -335,7 +335,7 @@ export default function App() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
               <div>
                 <div className="flex items-center gap-3 mb-4">
-                  <img src="/image.png" alt="WulfBidz Logo" className="w-12 h-12 object-contain" />
+                  <img src="/image.png" alt="WulfBidz Logo" className="w-16 h-16 object-contain mix-blend-lighten" />
                   <div>
                     <h3 className="text-xl font-bold text-white">WULFBIDZ</h3>
                     <p className="text-xs text-red-500">wulfbidz.com</p>
