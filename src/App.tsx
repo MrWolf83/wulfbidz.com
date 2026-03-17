@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, User, LogOut, Menu, X, Car, Shield, DollarSign, Clock, List, Settings, Bell } from 'lucide-react';
+import { Plus, Search, User, LogOut, Menu, X, Car, Shield, DollarSign, Clock, List, Settings, Bell, Heart } from 'lucide-react';
 import { supabase, type Listing } from './lib/supabase';
 import { CarCard } from './components/CarCard';
 import { ListingModal } from './components/ListingModal';
@@ -10,6 +10,7 @@ import MyListingsModal from './components/MyListingsModal';
 import AdminPanel from './components/AdminPanel';
 import { TwoFactorModal } from './components/TwoFactorModal';
 import NotificationsModal from './components/NotificationsModal';
+import { WatchlistModal } from './components/WatchlistModal';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<{ id: string; email: string } | null>(null);
@@ -31,6 +32,8 @@ export default function App() {
   const [pendingUserId, setPendingUserId] = useState<string | null>(null);
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
+  const [showWatchlist, setShowWatchlist] = useState(false);
+  const [watchlistIds, setWatchlistIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     updateMetaTags();
@@ -73,6 +76,7 @@ export default function App() {
     if (currentUser) {
       loadUnreadNotificationCount();
       subscribeToNotifications();
+      loadWatchlistIds();
     }
   }, [currentUser]);
 
@@ -112,6 +116,63 @@ export default function App() {
     return () => {
       supabase.removeChannel(channel);
     };
+  };
+
+  const loadWatchlistIds = async () => {
+    if (!currentUser) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('watchlist')
+        .select('listing_id')
+        .eq('user_id', currentUser.id);
+
+      if (error) throw error;
+      setWatchlistIds(new Set(data?.map(item => item.listing_id) || []));
+    } catch (error) {
+      console.error('Error loading watchlist:', error);
+    }
+  };
+
+  const handleToggleWatchlist = async (e: React.MouseEvent, listingId: string) => {
+    e.stopPropagation();
+    if (!currentUser) {
+      setShowProfileModal(true);
+      return;
+    }
+
+    const isInWatchlist = watchlistIds.has(listingId);
+
+    try {
+      if (isInWatchlist) {
+        const { error } = await supabase
+          .from('watchlist')
+          .delete()
+          .eq('user_id', currentUser.id)
+          .eq('listing_id', listingId);
+
+        if (error) throw error;
+
+        setWatchlistIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(listingId);
+          return newSet;
+        });
+      } else {
+        const { error } = await supabase
+          .from('watchlist')
+          .insert({
+            user_id: currentUser.id,
+            listing_id: listingId,
+          });
+
+        if (error) throw error;
+
+        setWatchlistIds(prev => new Set([...prev, listingId]));
+      }
+    } catch (error) {
+      console.error('Error toggling watchlist:', error);
+    }
   };
 
   const updateMetaTags = () => {
@@ -233,6 +294,18 @@ export default function App() {
             <div className="flex items-center gap-4">
               {currentUser ? (
                 <>
+                  <button
+                    onClick={() => setShowWatchlist(true)}
+                    className="relative p-2 hover:bg-gray-800 rounded-lg transition-colors text-gray-300 hover:text-white"
+                    title="Watchlist"
+                  >
+                    <Heart size={20} />
+                    {watchlistIds.size > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                        {watchlistIds.size > 9 ? '9+' : watchlistIds.size}
+                      </span>
+                    )}
+                  </button>
                   <button
                     onClick={() => setShowNotifications(true)}
                     className="relative p-2 hover:bg-gray-800 rounded-lg transition-colors text-gray-300 hover:text-white"
@@ -402,6 +475,8 @@ export default function App() {
                       key={listing.id}
                       listing={listing}
                       onClick={() => handleSelectListing(listing)}
+                      isInWatchlist={watchlistIds.has(listing.id)}
+                      onToggleWatchlist={currentUser ? (e) => handleToggleWatchlist(e, listing.id) : undefined}
                     />
                   ))}
                 </div>
@@ -662,6 +737,21 @@ export default function App() {
         <NotificationsModal
           isOpen={showNotifications}
           onClose={() => setShowNotifications(false)}
+        />
+      )}
+
+      {showWatchlist && (
+        <WatchlistModal
+          isOpen={showWatchlist}
+          onClose={() => {
+            setShowWatchlist(false);
+            loadWatchlistIds();
+          }}
+          userId={currentUser?.id || null}
+          onViewListing={(listing) => {
+            handleSelectListing(listing);
+            setShowWatchlist(false);
+          }}
         />
       )}
     </div>

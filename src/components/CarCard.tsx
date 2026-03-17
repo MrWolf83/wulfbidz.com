@@ -1,13 +1,15 @@
-import { MapPin, Gauge, Video } from 'lucide-react';
+import { MapPin, Gauge, Video, Heart } from 'lucide-react';
 import { CountdownBadge } from './ui/CountdownBadge';
 import type { Listing } from '../lib/supabase';
 
 interface CarCardProps {
   listing: Listing;
   onClick: () => void;
+  isInWatchlist?: boolean;
+  onToggleWatchlist?: (e: React.MouseEvent) => void;
 }
 
-export function CarCard({ listing, onClick }: CarCardProps) {
+export function CarCard({ listing, onClick, isInWatchlist = false, onToggleWatchlist }: CarCardProps) {
   const mainPhoto = listing.photos?.[0]?.url || '/1968-shelby-gt500-side.jpg';
   const hasVideos = listing.video_urls && (listing.video_urls as string[]).length > 0;
 
@@ -22,7 +24,23 @@ export function CarCard({ listing, onClick }: CarCardProps) {
           alt={listing.title}
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
         />
-        <div className="absolute top-3 right-3">
+        <div className="absolute top-3 right-3 flex items-center gap-2">
+          {onToggleWatchlist && (
+            <button
+              onClick={onToggleWatchlist}
+              className={`p-2 rounded-full transition-all duration-200 ${
+                isInWatchlist
+                  ? 'bg-red-500 text-white hover:bg-red-600'
+                  : 'bg-white/90 text-gray-700 hover:bg-white hover:text-red-500'
+              }`}
+              title={isInWatchlist ? 'Remove from watchlist' : 'Add to watchlist'}
+            >
+              <Heart
+                size={18}
+                fill={isInWatchlist ? 'currentColor' : 'none'}
+              />
+            </button>
+          )}
           <CountdownBadge endDate={listing.auction_end} />
         </div>
         {listing.buy_now_price && (
