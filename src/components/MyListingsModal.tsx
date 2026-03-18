@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { X, Car, AlertCircle, CreditCard as Edit } from 'lucide-react';
+import { X, Car, AlertCircle, CreditCard as Edit, XCircle } from 'lucide-react';
 import { supabase, type Listing } from '../lib/supabase';
 import ComplaintModal from './ComplaintModal';
 import EditListingModal from './EditListingModal';
+import CancelListingModal from './CancelListingModal';
 
 interface MyListingsModalProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ export default function MyListingsModal({ isOpen, onClose }: MyListingsModalProp
   const [isLoading, setIsLoading] = useState(true);
   const [showComplaintModal, setShowComplaintModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
   const [selectedListing, setSelectedListing] = useState<ListingWithBidder | null>(null);
 
   useEffect(() => {
@@ -97,6 +99,17 @@ export default function MyListingsModal({ isOpen, onClose }: MyListingsModalProp
     loadMyListings();
   };
 
+  const handleCancelListing = (listing: ListingWithBidder) => {
+    setSelectedListing(listing);
+    setShowCancelModal(true);
+  };
+
+  const handleCancelComplete = () => {
+    setShowCancelModal(false);
+    setSelectedListing(null);
+    loadMyListings();
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -166,14 +179,26 @@ export default function MyListingsModal({ isOpen, onClose }: MyListingsModalProp
                           )}
                         </div>
 
-                        <div className="mt-4 pt-4 border-t border-gray-700 flex items-center justify-between">
-                          <button
-                            onClick={() => handleEditListing(listing)}
-                            className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors"
-                          >
-                            <Edit size={16} />
-                            <span>Edit Description & Photos</span>
-                          </button>
+                        <div className="mt-4 pt-4 border-t border-gray-700 flex items-center justify-between flex-wrap gap-3">
+                          <div className="flex items-center gap-3">
+                            <button
+                              onClick={() => handleEditListing(listing)}
+                              className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors"
+                            >
+                              <Edit size={16} />
+                              <span>Edit Listing</span>
+                            </button>
+
+                            {listing.status === 'active' && (
+                              <button
+                                onClick={() => handleCancelListing(listing)}
+                                className="flex items-center gap-2 text-sm text-orange-400 hover:text-orange-300 transition-colors"
+                              >
+                                <XCircle size={16} />
+                                <span>Cancel Listing</span>
+                              </button>
+                            )}
+                          </div>
 
                           {listing.highest_bidder && (
                             <button
@@ -219,6 +244,18 @@ export default function MyListingsModal({ isOpen, onClose }: MyListingsModalProp
           }}
           listing={selectedListing}
           onUpdate={handleEditComplete}
+        />
+      )}
+
+      {showCancelModal && selectedListing && (
+        <CancelListingModal
+          isOpen={showCancelModal}
+          onClose={() => {
+            setShowCancelModal(false);
+            setSelectedListing(null);
+          }}
+          listing={selectedListing}
+          onCancel={handleCancelComplete}
         />
       )}
     </>
