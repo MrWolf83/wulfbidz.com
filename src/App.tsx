@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, User, LogOut, Menu, X, Car, Shield, DollarSign, Clock, List, Settings, Bell, Heart } from 'lucide-react';
+import { Plus, Search, User, LogOut, Menu, X, Car, Shield, DollarSign, Clock, List, Settings, Bell, Heart, Receipt } from 'lucide-react';
 import { supabase, type Listing } from './lib/supabase';
 import { CarCard } from './components/CarCard';
 import { ListingModal } from './components/ListingModal';
@@ -11,6 +11,7 @@ import AdminPanel from './components/AdminPanel';
 import { TwoFactorModal } from './components/TwoFactorModal';
 import NotificationsModal from './components/NotificationsModal';
 import { WatchlistModal } from './components/WatchlistModal';
+import TransactionDetailsModal from './components/TransactionDetailsModal';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<{ id: string; email: string } | null>(null);
@@ -35,6 +36,7 @@ export default function App() {
   const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
   const [showWatchlist, setShowWatchlist] = useState(false);
   const [watchlistIds, setWatchlistIds] = useState<Set<string>>(new Set());
+  const [showTransactions, setShowTransactions] = useState(false);
 
   useEffect(() => {
     updateMetaTags();
@@ -336,6 +338,13 @@ export default function App() {
                         {unreadNotificationCount > 9 ? '9+' : unreadNotificationCount}
                       </span>
                     )}
+                  </button>
+                  <button
+                    onClick={() => setShowTransactions(true)}
+                    className="p-2 hover:bg-gray-800 rounded-lg transition-colors text-gray-300 hover:text-white"
+                    title="My Transactions"
+                  >
+                    <Receipt size={20} />
                   </button>
                   {isAdmin && (
                     <button
@@ -772,6 +781,13 @@ export default function App() {
             handleSelectListing(listing);
             setShowWatchlist(false);
           }}
+        />
+      )}
+
+      {showTransactions && (
+        <TransactionDetailsModal
+          isOpen={showTransactions}
+          onClose={() => setShowTransactions(false)}
         />
       )}
     </div>

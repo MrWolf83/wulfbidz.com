@@ -196,11 +196,46 @@ export function ListingModal({ listing, onClose, onShowAuth }: ListingModalProps
     if (!listing.buy_now_price) return;
 
     const confirmed = confirm(
-      `Are you sure you want to buy this vehicle for $${listing.buy_now_price.toLocaleString()}?`
+      `Are you sure you want to buy this vehicle for $${listing.buy_now_price.toLocaleString()}?\n\nOnce confirmed, both parties will receive contact information to finalize the transaction.`
     );
 
-    if (confirmed) {
-      alert('Buy Now feature will be integrated with payment processing');
+    if (!confirmed) return;
+
+    try {
+      setIsPlacingBid(true);
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        alert('Please sign in to complete this purchase');
+        setShowAuthPrompt(true);
+        return;
+      }
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/process-buy-now`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ listingId: listing.id }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to process purchase');
+      }
+
+      alert('Purchase successful! Both parties will receive contact information via email to finalize the transaction.');
+      onClose();
+    } catch (error) {
+      console.error('Error processing buy now:', error);
+      alert(error instanceof Error ? error.message : 'Failed to process purchase. Please try again.');
+    } finally {
+      setIsPlacingBid(false);
     }
   };
 
