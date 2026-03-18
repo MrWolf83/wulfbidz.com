@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { X, Gauge, MapPin, Calendar, Cog, User, DollarSign, AlertCircle, Hash } from 'lucide-react';
+import { X, Gauge, MapPin, Calendar, Cog, User, DollarSign, AlertCircle, Hash, Heart } from 'lucide-react';
 import { PhotoGrid } from './ui/PhotoGrid';
 import { CountdownBadge } from './ui/CountdownBadge';
 import { ExpandableDescription } from './ui/ExpandableDescription';
 import { supabase, type Listing, type Bid } from '../lib/supabase';
 import ComplaintModal from './ComplaintModal';
+import { CommentSection } from './CommentSection';
 
 interface ListingModalProps {
   listing: Listing;
@@ -22,6 +23,8 @@ export function ListingModal({ listing, onClose, onShowAuth }: ListingModalProps
   const [showComplaintModal, setShowComplaintModal] = useState(false);
   const [sellerEmail, setSellerEmail] = useState<string>('');
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
+  const [listingLikes, setListingLikes] = useState(0);
+  const [isListingLiked, setIsListingLiked] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -30,6 +33,7 @@ export function ListingModal({ listing, onClose, onShowAuth }: ListingModalProps
 
     loadSellerEmail();
     loadBids();
+    loadListingLikes();
 
     const channel = supabase
       .channel(`listing-${listing.id}`)
@@ -78,6 +82,58 @@ export function ListingModal({ listing, onClose, onShowAuth }: ListingModalProps
 
     if (data) {
       setBids(data);
+    }
+  };
+
+  const loadListingLikes = async () => {
+    const { count } = await supabase
+      .from('listing_likes')
+      .select('*', { count: 'exact', head: true })
+      .eq('listing_id', listing.id);
+
+    setListingLikes(count || 0);
+
+    if (currentUser) {
+      const { data } = await supabase
+        .from('listing_likes')
+        .select('id')
+        .eq('listing_id', listing.id)
+        .eq('user_id', currentUser.id)
+        .maybeSingle();
+
+      setIsListingLiked(!!data);
+    }
+  };
+
+  const handleToggleListingLike = async () => {
+    if (!currentUser) {
+      setShowAuthPrompt(true);
+      return;
+    }
+
+    try {
+      if (isListingLiked) {
+        await supabase
+          .from('listing_likes')
+          .delete()
+          .eq('listing_id', listing.id)
+          .eq('user_id', currentUser.id);
+
+        setListingLikes(prev => prev - 1);
+        setIsListingLiked(false);
+      } else {
+        await supabase
+          .from('listing_likes')
+          .insert({
+            listing_id: listing.id,
+            user_id: currentUser.id,
+          });
+
+        setListingLikes(prev => prev + 1);
+        setIsListingLiked(true);
+      }
+    } catch (error) {
+      console.error('Error toggling like:', error);
     }
   };
 
@@ -390,20 +446,33 @@ export function ListingModal({ listing, onClose, onShowAuth }: ListingModalProps
             </div>
           </div>
 
-          {currentUser && currentUser.id !== listing.seller_id && bids.length > 0 && (
-            <div className="border-t border-gray-200 pt-6">
+          <div className="border-t border-gray-200 pt-6 space-y-6">
+            <div className="flex items-center justify-between">
               <button
-                onClick={() => setShowComplaintModal(true)}
-                className="flex items-center gap-2 text-sm text-gray-600 hover:text-red-600 transition-colors"
+                onClick={handleToggleListingLike}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+                  isListingLiked
+                    ? 'bg-red-100 text-red-600 hover:bg-red-200'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
               >
-                <AlertCircle size={16} />
-                <span>Report an issue with this deal</span>
+                <Heart size={20} fill={isListingLiked ? 'currentColor' : 'none'} />
+                <span>{listingLikes} {listingLikes === 1 ? 'Like' : 'Likes'}</span>
               </button>
-              <p className="text-xs text-gray-500 mt-1 ml-6">
-                If the seller backed out or there was an issue with this transaction
-              </p>
+
+              {currentUser && currentUser.id !== listing.seller_id && bids.length > 0 && (
+                <button
+                  onClick={() => setShowComplaintModal(true)}
+                  className="flex items-center gap-2 text-sm text-gray-600 hover:text-red-600 transition-colors"
+                >
+                  <AlertCircle size={16} />
+                  <span>Report an issue</span>
+                </button>
+              )}
             </div>
-          )}
+
+            <CommentSection listingId={listing.id} sellerId={listing.seller_id} />
+          </div>
         </div>
       </div>
 

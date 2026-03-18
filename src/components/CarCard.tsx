@@ -1,4 +1,4 @@
-import { MapPin, Gauge, Video, Heart } from 'lucide-react';
+import { MapPin, Gauge, Video, Heart, Users } from 'lucide-react';
 import { CountdownBadge } from './ui/CountdownBadge';
 import type { Listing } from '../lib/supabase';
 
@@ -7,9 +7,10 @@ interface CarCardProps {
   onClick: () => void;
   isInWatchlist?: boolean;
   onToggleWatchlist?: (e: React.MouseEvent) => void;
+  bidderCount?: number;
 }
 
-export function CarCard({ listing, onClick, isInWatchlist = false, onToggleWatchlist }: CarCardProps) {
+export function CarCard({ listing, onClick, isInWatchlist = false, onToggleWatchlist, bidderCount = 0 }: CarCardProps) {
   const mainPhoto = listing.photos?.[0]?.url || '/1968-shelby-gt500-side.jpg';
   const hasVideos = listing.video_urls && (listing.video_urls as string[]).length > 0;
 
@@ -80,19 +81,28 @@ export function CarCard({ listing, onClick, isInWatchlist = false, onToggleWatch
           </div>
         </div>
 
-        <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-          <div>
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Current Bid</p>
-            <p className="text-2xl font-bold text-red-600">
-              ${listing.current_bid.toLocaleString()}
-            </p>
-          </div>
-          {listing.buy_now_price && (
-            <div className="text-right">
-              <p className="text-xs text-gray-500 uppercase tracking-wide">Buy Now</p>
-              <p className="text-lg font-semibold text-green-600">
-                ${listing.buy_now_price.toLocaleString()}
+        <div className="pt-4 border-t border-gray-200 space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-gray-500 uppercase tracking-wide">Current Bid</p>
+              <p className="text-2xl font-bold text-red-600">
+                ${listing.current_bid.toLocaleString()}
               </p>
+            </div>
+            {listing.buy_now_price && (
+              <div className="text-right">
+                <p className="text-xs text-gray-500 uppercase tracking-wide">Buy Now</p>
+                <p className="text-lg font-semibold text-green-600">
+                  ${listing.buy_now_price.toLocaleString()}
+                </p>
+              </div>
+            )}
+          </div>
+          {bidderCount > 0 && (
+            <div className="flex items-center gap-1.5 text-sm text-gray-600 bg-gray-50 px-3 py-1.5 rounded-lg">
+              <Users size={16} className="text-blue-600" />
+              <span className="font-medium">{bidderCount}</span>
+              <span>{bidderCount === 1 ? 'bidder' : 'bidders'}</span>
             </div>
           )}
         </div>

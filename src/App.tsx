@@ -16,6 +16,7 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState<{ id: string; email: string } | null>(null);
   const [listings, setListings] = useState<Listing[]>([]);
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
+  const [bidderCounts, setBidderCounts] = useState<Record<string, number>>({});
   const [showListingModal, setShowListingModal] = useState(false);
   const [showSellModal, setShowSellModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -214,6 +215,24 @@ export default function App() {
 
     if (data) {
       setListings(data);
+      loadBidderCounts(data.map(l => l.id));
+    }
+  };
+
+  const loadBidderCounts = async (listingIds: string[]) => {
+    if (listingIds.length === 0) return;
+
+    const { data } = await supabase
+      .from('listing_bidder_counts')
+      .select('*')
+      .in('listing_id', listingIds);
+
+    if (data) {
+      const counts: Record<string, number> = {};
+      data.forEach(item => {
+        counts[item.listing_id] = item.bidder_count;
+      });
+      setBidderCounts(counts);
     }
   };
 
@@ -477,6 +496,7 @@ export default function App() {
                       onClick={() => handleSelectListing(listing)}
                       isInWatchlist={watchlistIds.has(listing.id)}
                       onToggleWatchlist={currentUser ? (e) => handleToggleWatchlist(e, listing.id) : undefined}
+                      bidderCount={bidderCounts[listing.id] || 0}
                     />
                   ))}
                 </div>
