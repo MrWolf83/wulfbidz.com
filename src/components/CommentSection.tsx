@@ -41,23 +41,46 @@ export function CommentSection({ listingId, sellerId }: CommentSectionProps) {
 
   const loadComments = async () => {
     try {
+      // Get current user first
+      const { data: { user } } = await supabase.auth.getUser();
+      const userId = user?.id;
+
+      // Fetch top-level comments
       const { data: commentsData, error: commentsError } = await supabase
         .from('comments')
-        .select(`
-          *,
-          user:user_id (email)
-        `)
+        .select('*')
         .eq('listing_id', listingId)
         .is('parent_comment_id', null)
         .order('created_at', { ascending: false });
 
       if (commentsError) throw commentsError;
 
-      const { data: { user } } = await supabase.auth.getUser();
-      const userId = user?.id;
+      // Get all user IDs we need to fetch
+      const userIds = new Set((commentsData || []).map(c => c.user_id));
+
+      // Fetch replies to get their user IDs too
+      const { data: allReplies } = await supabase
+        .from('comments')
+        .select('*')
+        .eq('listing_id', listingId)
+        .not('parent_comment_id', 'is', null)
+        .order('created_at', { ascending: true });
+
+      (allReplies || []).forEach(r => userIds.add(r.user_id));
+
+      // Fetch all user emails in one query
+      const { data: usersData } = await supabase.rpc('get_user_emails', {
+        user_ids: Array.from(userIds)
+      });
+
+      const userEmailMap = new Map();
+      (usersData || []).forEach((u: any) => {
+        userEmailMap.set(u.user_id, u.email);
+      });
 
       const commentsWithDetails = await Promise.all(
         (commentsData || []).map(async (comment: any) => {
+          // Get like count and user's like status
           const { count: likeCount } = await supabase
             .from('comment_likes')
             .select('*', { count: 'exact', head: true })
@@ -74,17 +97,13 @@ export function CommentSection({ listingId, sellerId }: CommentSectionProps) {
             isLiked = !!likeData;
           }
 
-          const { data: repliesData } = await supabase
-            .from('comments')
-            .select(`
-              *,
-              user:user_id (email)
-            `)
-            .eq('parent_comment_id', comment.id)
-            .order('created_at', { ascending: true });
+          // Get replies for this comment
+          const repliesForComment = (allReplies || []).filter(
+            r => r.parent_comment_id === comment.id
+          );
 
           const repliesWithDetails = await Promise.all(
-            (repliesData || []).map(async (reply: any) => {
+            repliesForComment.map(async (reply: any) => {
               const { count: replyLikeCount } = await supabase
                 .from('comment_likes')
                 .select('*', { count: 'exact', head: true })
@@ -103,7 +122,7 @@ export function CommentSection({ listingId, sellerId }: CommentSectionProps) {
 
               return {
                 ...reply,
-                user_email: reply.user?.email || 'Anonymous',
+                user_email: userEmailMap.get(reply.user_id) || 'Anonymous',
                 like_count: replyLikeCount || 0,
                 is_liked: isReplyLiked,
               };
@@ -112,7 +131,7 @@ export function CommentSection({ listingId, sellerId }: CommentSectionProps) {
 
           return {
             ...comment,
-            user_email: comment.user?.email || 'Anonymous',
+            user_email: userEmailMap.get(comment.user_id) || 'Anonymous',
             like_count: likeCount || 0,
             is_liked: isLiked,
             replies: repliesWithDetails,
