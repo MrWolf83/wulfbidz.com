@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { X, Bell, Check, Trash2 } from 'lucide-react';
+import { X, Bell, Check, Trash2, Trophy, DollarSign } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface Notification {
@@ -11,6 +11,7 @@ interface Notification {
   bid_id: string | null;
   is_read: boolean;
   created_at: string;
+  notification_type?: string;
 }
 
 interface NotificationsModalProps {
@@ -170,44 +171,70 @@ export default function NotificationsModal({ isOpen, onClose }: NotificationsMod
             </div>
           ) : (
             <div className="divide-y">
-              {notifications.map((notification) => (
-                <div
-                  key={notification.id}
-                  className={`p-4 hover:bg-gray-50 transition-colors ${
-                    !notification.is_read ? 'bg-blue-50/50' : ''
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    <div
-                      className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${
-                        !notification.is_read ? 'bg-blue-600' : 'bg-transparent'
-                      }`}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <h3 className="font-semibold text-gray-900">
-                          {notification.title}
-                        </h3>
-                        <span className="text-xs text-gray-500 whitespace-nowrap">
-                          {formatTime(notification.created_at)}
-                        </span>
+              {notifications.map((notification) => {
+                const isAuctionEnd = notification.notification_type?.startsWith('auction_ended');
+                const isWinner = notification.notification_type === 'auction_ended_winner';
+                const isSeller = notification.notification_type === 'auction_ended_seller';
+
+                return (
+                  <div
+                    key={notification.id}
+                    className={`p-4 transition-colors ${
+                      isAuctionEnd
+                        ? !notification.is_read
+                          ? 'bg-gradient-to-r from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100'
+                          : 'hover:bg-gray-50'
+                        : !notification.is_read
+                          ? 'bg-blue-50/50 hover:bg-gray-50'
+                          : 'hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      {isAuctionEnd ? (
+                        <div className="bg-green-100 p-2 rounded-full">
+                          <Trophy className="w-5 h-5 text-green-600" />
+                        </div>
+                      ) : (
+                        <div
+                          className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${
+                            !notification.is_read ? 'bg-blue-600' : 'bg-transparent'
+                          }`}
+                        />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <h3 className={`font-semibold ${isAuctionEnd ? 'text-green-900' : 'text-gray-900'}`}>
+                              {notification.title}
+                            </h3>
+                            {isAuctionEnd && (
+                              <span className="inline-flex items-center gap-1 text-xs font-medium text-green-700 mt-0.5">
+                                <DollarSign className="w-3 h-3" />
+                                {isWinner ? 'You won!' : 'Sale complete'}
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-xs text-gray-500 whitespace-nowrap">
+                            {formatTime(notification.created_at)}
+                          </span>
+                        </div>
+                        <p className={`text-sm mt-1 ${isAuctionEnd ? 'text-green-800' : 'text-gray-600'}`}>
+                          {notification.message}
+                        </p>
                       </div>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {notification.message}
-                      </p>
+                      {!notification.is_read && (
+                        <button
+                          onClick={() => markAsRead(notification.id)}
+                          className={`${isAuctionEnd ? 'text-green-600 hover:text-green-700' : 'text-blue-600 hover:text-blue-700'} transition-colors`}
+                          title="Mark as read"
+                        >
+                          <Check className="w-5 h-5" />
+                        </button>
+                      )}
                     </div>
-                    {!notification.is_read && (
-                      <button
-                        onClick={() => markAsRead(notification.id)}
-                        className="text-blue-600 hover:text-blue-700 transition-colors"
-                        title="Mark as read"
-                      >
-                        <Check className="w-5 h-5" />
-                      </button>
-                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

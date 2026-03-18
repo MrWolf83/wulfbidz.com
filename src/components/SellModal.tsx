@@ -11,6 +11,7 @@ interface SellModalProps {
 export function SellModal({ onClose }: SellModalProps) {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showReservePriceConfirm, setShowReservePriceConfirm] = useState(false);
 
   const [formData, setFormData] = useState({
     year: new Date().getFullYear(),
@@ -128,8 +129,20 @@ export function SellModal({ onClose }: SellModalProps) {
     );
   };
 
+  const handlePreSubmit = () => {
+    if (!canSubmit()) return;
+
+    if (formData.reservePrice && Number(formData.reservePrice) > 0) {
+      setShowReservePriceConfirm(true);
+    } else {
+      handleSubmit();
+    }
+  };
+
   const handleSubmit = async () => {
     if (!canSubmit()) return;
+
+    setShowReservePriceConfirm(false);
 
     setIsSubmitting(true);
 
@@ -754,7 +767,7 @@ export function SellModal({ onClose }: SellModalProps) {
             </div>
           ) : (
             <button
-              onClick={handleSubmit}
+              onClick={handlePreSubmit}
               disabled={!canSubmit() || isSubmitting}
               className="px-6 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -763,6 +776,54 @@ export function SellModal({ onClose }: SellModalProps) {
           )}
         </div>
       </div>
+
+      {showReservePriceConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-[60]">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">
+              Confirm Reserve Price
+            </h3>
+
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+              <p className="text-sm text-yellow-800 mb-3">
+                <span className="font-semibold">Important Notice:</span>
+              </p>
+              <p className="text-sm text-yellow-900 mb-2">
+                Your reserve price is set to <span className="font-bold">${Number(formData.reservePrice).toLocaleString()}</span>
+              </p>
+              <p className="text-sm text-yellow-900">
+                Once your listing goes live, you can only <span className="font-semibold">lower</span> the reserve price, not increase it.
+              </p>
+            </div>
+
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+              <h4 className="font-semibold text-gray-900 mb-2">Please verify your reserve price:</h4>
+              <div className="text-3xl font-bold text-red-600 mb-1">
+                ${Number(formData.reservePrice).toLocaleString()}
+              </div>
+              <p className="text-sm text-gray-600">
+                The auction will not sell unless bidding reaches this amount
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowReservePriceConfirm(false)}
+                className="flex-1 px-4 py-2 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                Go Back
+              </button>
+              <button
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="flex-1 px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+              >
+                {isSubmitting ? 'Creating...' : 'Confirm & Create'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
