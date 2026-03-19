@@ -14,6 +14,7 @@ import { WatchlistModal } from './components/WatchlistModal';
 import TransactionDetailsModal from './components/TransactionDetailsModal';
 import LanguageSelector from './components/LanguageSelector';
 import PrivacyPolicyModal from './components/PrivacyPolicyModal';
+import MuscleCarHistory from './components/MuscleCarHistory';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<{ id: string; email: string } | null>(null);
@@ -631,6 +632,8 @@ export default function App() {
                 </p>
               </div>
             </div>
+
+            <MuscleCarHistory />
 
             {showFees && (
               <div className="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-8">
