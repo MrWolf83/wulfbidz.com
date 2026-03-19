@@ -9,6 +9,7 @@ interface Transaction {
   buyer_id: string;
   final_price: number;
   seller_fee: number;
+  buyer_fee: number;
   payment_method: string;
   seller_email: string;
   seller_phone: string | null;
@@ -90,8 +91,8 @@ export default function TransactionDetailsModal({ isOpen, onClose }: Transaction
                 const otherPartyEmail = isSeller ? transaction.buyer_email : transaction.seller_email;
                 const otherPartyPhone = isSeller ? transaction.buyer_phone : transaction.seller_phone;
                 const netAmount = isSeller
-                  ? transaction.final_price - transaction.seller_fee
-                  : transaction.final_price;
+                  ? transaction.final_price
+                  : transaction.final_price + (transaction.buyer_fee || 0);
 
                 return (
                   <div key={transaction.id} className="border rounded-lg p-6 bg-gray-50">
@@ -129,28 +130,30 @@ export default function TransactionDetailsModal({ isOpen, onClose }: Transaction
                             <span className="font-semibold">${transaction.final_price.toLocaleString()}</span>
                           </div>
                           {isSeller && (
+                            <div className="flex justify-between pt-2 border-t">
+                              <span className="text-gray-900 font-semibold">Amount Received:</span>
+                              <span className="font-bold text-green-600">
+                                ${netAmount.toLocaleString()}
+                              </span>
+                            </div>
+                          )}
+                          {!isSeller && (
                             <>
-                              <div className="flex justify-between">
-                                <span className="text-gray-600">Seller Fee (5%):</span>
-                                <span className="font-semibold text-red-600">
-                                  -${transaction.seller_fee.toLocaleString()}
-                                </span>
-                              </div>
+                              {transaction.buyer_fee > 0 && (
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Auction Fee (5%):</span>
+                                  <span className="font-semibold text-red-600">
+                                    +${transaction.buyer_fee.toLocaleString()}
+                                  </span>
+                                </div>
+                              )}
                               <div className="flex justify-between pt-2 border-t">
-                                <span className="text-gray-900 font-semibold">Net Amount:</span>
-                                <span className="font-bold text-green-600">
+                                <span className="text-gray-900 font-semibold">Total Amount:</span>
+                                <span className="font-bold text-blue-600">
                                   ${netAmount.toLocaleString()}
                                 </span>
                               </div>
                             </>
-                          )}
-                          {!isSeller && (
-                            <div className="flex justify-between pt-2 border-t">
-                              <span className="text-gray-900 font-semibold">Total Amount:</span>
-                              <span className="font-bold text-blue-600">
-                                ${netAmount.toLocaleString()}
-                              </span>
-                            </div>
                           )}
                         </div>
                       </div>
