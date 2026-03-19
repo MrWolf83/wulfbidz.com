@@ -595,7 +595,7 @@ export default function App() {
                       }}
                       className="text-gray-400 hover:text-red-500 text-sm transition-colors"
                     >
-                      Seller Fees
+                      Buyer Fees
                     </button>
                   </li>
                   <li>
@@ -624,18 +624,18 @@ export default function App() {
 
             {showFees && (
               <div className="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-8">
-                <h4 className="text-white font-bold text-lg mb-4">Seller Fees</h4>
+                <h4 className="text-white font-bold text-lg mb-4">Buyer Fees</h4>
                 <div className="space-y-4 text-sm">
                   <div>
-                    <p className="text-red-500 font-semibold mb-2">Listing Fee</p>
+                    <p className="text-red-500 font-semibold mb-2">For Sellers</p>
                     <p className="text-gray-400">
-                      <span className="font-bold text-white">FREE</span> - No upfront costs to list your vehicle
+                      <span className="font-bold text-white">FREE</span> - No fees for sellers. List and sell your vehicle at no cost.
                     </p>
                   </div>
                   <div>
-                    <p className="text-red-500 font-semibold mb-2">Success Fee</p>
+                    <p className="text-red-500 font-semibold mb-2">For Buyers</p>
                     <p className="text-gray-400">
-                      <span className="font-bold text-white">5%</span> of final sale price (capped at $4,000) - Only charged when your vehicle sells
+                      <span className="font-bold text-white">5%</span> buyer fee (capped at $4,000) - Only charged when you win or purchase a vehicle
                     </p>
                   </div>
                   <div className="pt-4 border-t border-gray-700">
@@ -644,24 +644,26 @@ export default function App() {
                     </p>
                     <div className="space-y-3">
                       <div>
-                        <p className="text-gray-400">If your car sells for <span className="font-semibold text-white">$50,000</span>:</p>
+                        <p className="text-gray-400">If you win a car at <span className="font-semibold text-white">$50,000</span>:</p>
                         <ul className="ml-4 mt-1 space-y-1 text-gray-400">
-                          <li>• Success Fee: $2,500 (5%)</li>
-                          <li>• <span className="text-green-400 font-semibold">You Receive: $47,500</span></li>
+                          <li>• Winning Bid: $50,000</li>
+                          <li>• Buyer Fee: $2,500 (5%)</li>
+                          <li>• <span className="text-amber-400 font-semibold">Total You Pay: $52,500</span></li>
                         </ul>
                       </div>
                       <div>
-                        <p className="text-gray-400">If your car sells for <span className="font-semibold text-white">$100,000</span>:</p>
+                        <p className="text-gray-400">If you win a car at <span className="font-semibold text-white">$100,000</span>:</p>
                         <ul className="ml-4 mt-1 space-y-1 text-gray-400">
-                          <li>• Success Fee: $4,000 (capped)</li>
-                          <li>• <span className="text-green-400 font-semibold">You Receive: $96,000</span></li>
+                          <li>• Winning Bid: $100,000</li>
+                          <li>• Buyer Fee: $4,000 (capped)</li>
+                          <li>• <span className="text-amber-400 font-semibold">Total You Pay: $104,000</span></li>
                         </ul>
                       </div>
                     </div>
                   </div>
                   <div className="pt-4 border-t border-gray-700">
                     <p className="text-xs text-gray-500">
-                      No hidden fees. No reserve fees. No relisting fees. You only pay when you sell.
+                      Transparent pricing. No hidden fees. Sellers receive 100% of the winning bid.
                     </p>
                   </div>
                 </div>
