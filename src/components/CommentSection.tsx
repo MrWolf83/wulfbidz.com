@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { MessageSquare, Heart, Reply, Send, Trash2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { TranslatedComment } from './TranslatedComment';
 
 interface Comment {
   id: string;
@@ -18,9 +19,10 @@ interface Comment {
 interface CommentSectionProps {
   listingId: string;
   sellerId: string;
+  targetLanguage?: string;
 }
 
-export function CommentSection({ listingId, sellerId }: CommentSectionProps) {
+export function CommentSection({ listingId, sellerId, targetLanguage = 'en' }: CommentSectionProps) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -316,7 +318,7 @@ export function CommentSection({ listingId, sellerId }: CommentSectionProps) {
               </span>
               <span className="text-xs text-gray-500">{formatTime(comment.created_at)}</span>
             </div>
-            <p className="text-sm text-gray-700 whitespace-pre-wrap break-words">{comment.content}</p>
+            <TranslatedComment content={comment.content} targetLanguage={targetLanguage} />
           </div>
 
           <div className="flex items-center gap-4 mt-2 px-2">

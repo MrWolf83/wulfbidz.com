@@ -11,9 +11,10 @@ interface ListingModalProps {
   listing: Listing;
   onClose: () => void;
   onShowAuth?: () => void;
+  targetLanguage?: string;
 }
 
-export function ListingModal({ listing, onClose, onShowAuth }: ListingModalProps) {
+export function ListingModal({ listing, onClose, onShowAuth, targetLanguage = 'en' }: ListingModalProps) {
   const [bidAmount, setBidAmount] = useState(
     listing.current_bid > 0 ? listing.current_bid + 100 : listing.starting_bid
   );
@@ -356,7 +357,7 @@ export function ListingModal({ listing, onClose, onShowAuth }: ListingModalProps
 
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">Description</h3>
-                <ExpandableDescription text={listing.description} />
+                <ExpandableDescription text={listing.description} targetLanguage={targetLanguage} />
               </div>
             </div>
 
@@ -506,7 +507,7 @@ export function ListingModal({ listing, onClose, onShowAuth }: ListingModalProps
               )}
             </div>
 
-            <CommentSection listingId={listing.id} sellerId={listing.seller_id} />
+            <CommentSection listingId={listing.id} sellerId={listing.seller_id} targetLanguage={targetLanguage} />
           </div>
         </div>
       </div>

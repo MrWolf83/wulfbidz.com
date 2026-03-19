@@ -12,6 +12,7 @@ import { TwoFactorModal } from './components/TwoFactorModal';
 import NotificationsModal from './components/NotificationsModal';
 import { WatchlistModal } from './components/WatchlistModal';
 import TransactionDetailsModal from './components/TransactionDetailsModal';
+import LanguageSelector from './components/LanguageSelector';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<{ id: string; email: string } | null>(null);
@@ -37,6 +38,7 @@ export default function App() {
   const [showWatchlist, setShowWatchlist] = useState(false);
   const [watchlistIds, setWatchlistIds] = useState<Set<string>>(new Set());
   const [showTransactions, setShowTransactions] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState('en');
 
   useEffect(() => {
     updateMetaTags();
@@ -313,6 +315,8 @@ export default function App() {
             </nav>
 
             <div className="flex items-center gap-4">
+              <LanguageSelector onLanguageChange={setSelectedLanguage} />
+
               {currentUser ? (
                 <>
                   <button
@@ -693,6 +697,7 @@ export default function App() {
             setShowListingModal(false);
             setShowProfileModal(true);
           }}
+          targetLanguage={selectedLanguage}
         />
       )}
 

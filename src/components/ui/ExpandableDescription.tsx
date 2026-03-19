@@ -1,22 +1,46 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import { translateText } from '../../utils/translate';
 
 interface ExpandableDescriptionProps {
   text: string;
   maxLength?: number;
+  targetLanguage?: string;
 }
 
-export function ExpandableDescription({ text, maxLength = 300 }: ExpandableDescriptionProps) {
+export function ExpandableDescription({ text, maxLength = 300, targetLanguage = 'en' }: ExpandableDescriptionProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [translatedText, setTranslatedText] = useState(text);
+  const [isTranslating, setIsTranslating] = useState(false);
 
-  if (text.length <= maxLength) {
-    return <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">{text}</p>;
+  useEffect(() => {
+    if (targetLanguage !== 'en' && text) {
+      setIsTranslating(true);
+      translateText(text, targetLanguage).then((translated) => {
+        setTranslatedText(translated);
+        setIsTranslating(false);
+      });
+    } else {
+      setTranslatedText(text);
+    }
+  }, [text, targetLanguage]);
+
+  const displayText = isTranslating ? text : translatedText;
+
+  if (displayText.length <= maxLength) {
+    return (
+      <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+        {displayText}
+        {isTranslating && <span className="text-gray-400 ml-2 text-sm">(Translating...)</span>}
+      </p>
+    );
   }
 
   return (
     <div>
       <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-        {isExpanded ? text : `${text.slice(0, maxLength)}...`}
+        {isExpanded ? displayText : `${displayText.slice(0, maxLength)}...`}
+        {isTranslating && <span className="text-gray-400 ml-2 text-sm">(Translating...)</span>}
       </p>
       <button
         onClick={() => setIsExpanded(!isExpanded)}
