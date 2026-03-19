@@ -13,6 +13,7 @@ import NotificationsModal from './components/NotificationsModal';
 import { WatchlistModal } from './components/WatchlistModal';
 import TransactionDetailsModal from './components/TransactionDetailsModal';
 import LanguageSelector from './components/LanguageSelector';
+import PrivacyPolicyModal from './components/PrivacyPolicyModal';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<{ id: string; email: string } | null>(null);
@@ -39,6 +40,7 @@ export default function App() {
   const [watchlistIds, setWatchlistIds] = useState<Set<string>>(new Set());
   const [showTransactions, setShowTransactions] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('en');
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
 
   useEffect(() => {
     updateMetaTags();
@@ -606,6 +608,14 @@ export default function App() {
                       {currentUser ? 'My Account' : 'Sign Up / Login'}
                     </button>
                   </li>
+                  <li>
+                    <button
+                      onClick={() => setShowPrivacyPolicy(true)}
+                      className="text-gray-400 hover:text-red-500 text-sm transition-colors"
+                    >
+                      Privacy Policy
+                    </button>
+                  </li>
                 </ul>
               </div>
 
@@ -795,6 +805,12 @@ export default function App() {
         <TransactionDetailsModal
           isOpen={showTransactions}
           onClose={() => setShowTransactions(false)}
+        />
+      )}
+
+      {showPrivacyPolicy && (
+        <PrivacyPolicyModal
+          onClose={() => setShowPrivacyPolicy(false)}
         />
       )}
     </div>
