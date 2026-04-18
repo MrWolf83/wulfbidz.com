@@ -430,10 +430,15 @@ export function ListingModal({ listing, onClose, onShowAuth, targetLanguage = 'e
                   )}
 
                   {!currentUser && (
-                    <div className="text-center py-4">
-                      <p className="text-gray-600 text-sm">
-                        Create a free account to place bids
-                      </p>
+                    <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 text-center space-y-3">
+                      <p className="text-gray-800 font-semibold text-base">Ready to bid?</p>
+                      <p className="text-gray-500 text-sm">Create a free account or sign in to place bids and buy vehicles.</p>
+                      <button
+                        onClick={onShowAuth}
+                        className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold py-3 rounded-lg transition-all shadow-md hover:shadow-lg"
+                      >
+                        Sign Up / Log In to Bid
+                      </button>
                     </div>
                   )}
                 </div>
