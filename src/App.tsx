@@ -463,11 +463,10 @@ export default function App() {
           <div
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{
-              backgroundImage: 'url(/1967-Ford-Mustang-Eleanor-Exterior-003-Front-ChromeCars.jpg)',
-              opacity: 0.75
+              backgroundImage: 'url(https://images.pexels.com/photos/3802510/pexels-photo-3802510.jpeg?auto=compress&cs=tinysrgb&w=1920)',
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-gray-900/90 via-gray-900/70 to-gray-900/90" />
+          <div className="absolute inset-0 bg-gradient-to-r from-gray-900/75 via-gray-900/55 to-gray-900/75" />
           <div className="relative z-10 h-full flex items-center justify-center">
             <div className="text-center px-4">
               <h2 className="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight">

@@ -11,7 +11,7 @@ interface CarCardProps {
 }
 
 export function CarCard({ listing, onClick, isInWatchlist = false, onToggleWatchlist, bidderCount = 0 }: CarCardProps) {
-  const mainPhoto = listing.photos?.[0]?.url || '/1968-shelby-gt500-side.jpg';
+  const mainPhoto = listing.photos?.[0]?.url || 'https://images.pexels.com/photos/3802510/pexels-photo-3802510.jpeg?auto=compress&cs=tinysrgb&w=800';
   const hasVideos = listing.video_urls && (listing.video_urls as string[]).length > 0;
 
   return (
@@ -24,6 +24,9 @@ export function CarCard({ listing, onClick, isInWatchlist = false, onToggleWatch
           src={mainPhoto}
           alt={listing.title}
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = 'https://images.pexels.com/photos/3802510/pexels-photo-3802510.jpeg?auto=compress&cs=tinysrgb&w=800';
+          }}
         />
         <div className="absolute top-3 right-3 flex items-center gap-2">
           {onToggleWatchlist && (
