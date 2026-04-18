@@ -6,6 +6,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
+const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+
 interface TransactionEmailRequest {
   transactionId: string;
 }
@@ -128,11 +130,60 @@ Thank you for using WulfBidz!
       `.trim(),
     };
 
-    console.log("Transaction emails prepared:");
-    console.log("To seller:", sellerEmail.to);
-    console.log("To buyer:", buyerEmail.to);
-    console.log("\nSeller Email:\n", sellerEmail.body);
-    console.log("\nBuyer Email:\n", buyerEmail.body);
+    if (!RESEND_API_KEY) {
+      console.log("RESEND_API_KEY not configured - logging emails to console:");
+      console.log("To seller:", sellerEmail.to);
+      console.log("To buyer:", buyerEmail.to);
+      console.log("\nSeller Email:\n", sellerEmail.body);
+      console.log("\nBuyer Email:\n", buyerEmail.body);
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: "RESEND_API_KEY not configured - emails logged to console",
+          emails: { seller: sellerEmail, buyer: buyerEmail }
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const emailPromises = [
+      fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${RESEND_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: "WulfBidz <notifications@wulfbidz.com>",
+          to: sellerEmail.to,
+          subject: sellerEmail.subject,
+          text: sellerEmail.body,
+        }),
+      }),
+      fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${RESEND_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: "WulfBidz <notifications@wulfbidz.com>",
+          to: buyerEmail.to,
+          subject: buyerEmail.subject,
+          text: buyerEmail.body,
+        }),
+      }),
+    ];
+
+    const emailResults = await Promise.all(emailPromises);
+
+    const failedEmails = emailResults.filter(r => !r.ok);
+    if (failedEmails.length > 0) {
+      const errors = await Promise.all(failedEmails.map(r => r.text()));
+      console.error("Failed to send some emails:", errors);
+      throw new Error(`Failed to send ${failedEmails.length} email(s)`);
+    }
 
     await fetch(
       `${supabaseUrl}/rest/v1/completed_transactions?id=eq.${transactionId}`,
@@ -151,8 +202,7 @@ Thank you for using WulfBidz!
     return new Response(
       JSON.stringify({
         success: true,
-        message: "Transaction emails prepared (logged to console)",
-        emails: { seller: sellerEmail, buyer: buyerEmail }
+        message: "Transaction emails sent successfully",
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );

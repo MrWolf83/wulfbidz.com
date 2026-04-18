@@ -15,6 +15,8 @@ import TransactionDetailsModal from './components/TransactionDetailsModal';
 import LanguageSelector from './components/LanguageSelector';
 import PrivacyPolicyModal from './components/PrivacyPolicyModal';
 import MuscleCarHistory from './components/MuscleCarHistory';
+import TermsOfServiceModal from './components/TermsOfServiceModal';
+import { updateMetaTags as updateSEOMetaTags, updateListingMetaTags, resetMetaTags } from './utils/seo';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<{ id: string; email: string } | null>(null);
@@ -42,6 +44,7 @@ export default function App() {
   const [showTransactions, setShowTransactions] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('en');
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
+  const [showTermsOfService, setShowTermsOfService] = useState(false);
 
   useEffect(() => {
     updateMetaTags();
@@ -184,12 +187,7 @@ export default function App() {
   };
 
   const updateMetaTags = () => {
-    document.title = 'WulfBidz - Verified Car Auctions & Live Bidding | wulfbidz.com';
-
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute('content', 'WulfBidz is your trusted online car auction marketplace. Buy and sell verified vehicles with live bidding, transparent pricing, and secure transactions.');
-    }
+    updateSEOMetaTags();
   };
 
   const checkAuth = async () => {
@@ -246,6 +244,20 @@ export default function App() {
   const handleSelectListing = (listing: Listing) => {
     setSelectedListing(listing);
     setShowListingModal(true);
+
+    const photos = listing.photos?.map(p => p.url) || [];
+    updateListingMetaTags({
+      year: listing.year,
+      make: listing.make,
+      model: listing.model,
+      price: listing.current_bid || listing.reserve_price,
+      mileage: listing.mileage,
+      city: listing.city,
+      state: listing.state,
+      description: listing.description,
+      photos,
+      listingId: listing.id,
+    });
   };
 
   const handleSignOut = async () => {
@@ -617,6 +629,14 @@ export default function App() {
                       Privacy Policy
                     </button>
                   </li>
+                  <li>
+                    <button
+                      onClick={() => setShowTermsOfService(true)}
+                      className="text-gray-400 hover:text-red-500 text-sm transition-colors"
+                    >
+                      Terms of Service
+                    </button>
+                  </li>
                 </ul>
               </div>
 
@@ -707,6 +727,7 @@ export default function App() {
           onClose={() => {
             setShowListingModal(false);
             setSelectedListing(null);
+            resetMetaTags();
           }}
           onShowAuth={() => {
             setShowListingModal(false);
@@ -814,6 +835,13 @@ export default function App() {
       {showPrivacyPolicy && (
         <PrivacyPolicyModal
           onClose={() => setShowPrivacyPolicy(false)}
+        />
+      )}
+
+      {showTermsOfService && (
+        <TermsOfServiceModal
+          isOpen={showTermsOfService}
+          onClose={() => setShowTermsOfService(false)}
         />
       )}
     </div>
